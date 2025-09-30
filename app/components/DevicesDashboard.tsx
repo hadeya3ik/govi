@@ -1,8 +1,17 @@
 'use client'
 import React, {useState} from 'react'
 import Device from '@/app/components/Device'
+import { DeviceData, Capability } from "../types/device"
 
-function ApiKeyForm({handleChange, handleSubmit, ApiKey}) {
+function ApiKeyInput({
+    ApiKey,
+    handleChange,
+    handleSubmit,
+  }: {
+    ApiKey: string
+    handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+    handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void
+  }) {
   return (
     <form onSubmit={handleSubmit}>
         <label htmlFor="">
@@ -14,38 +23,38 @@ function ApiKeyForm({handleChange, handleSubmit, ApiKey}) {
   ) 
 }
 
-function GetDeviceList() {
+function DevicesDashboard() {
   const [value, setValue] = useState("7caf011b-ffe2-40de-a065-cdb5658b2442")
-  const [data, setData] = useState(null)
+  const [data, setData] = useState<DeviceData[] | null>(null)
 
   async function handleSubmit(e : React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     const response = await fetch("/api/devices", 
-        {
-            body : JSON.stringify({api_key : value}),
-            method : "POST",
-            headers : {
-                "Content-Type" : "application/json"
-            }
-        })
+      {
+          body : JSON.stringify({api_key : value}),
+          method : "POST",
+          headers : {
+              "Content-Type" : "application/json"
+          }
+      }
+    )
     const json = await response.json()
-    console.log(json)
-    setData(json.data.filter((device) => device.type === "devices.types.light"))
-    console.log(data)
+    const devices = json.data as DeviceData[]  
+    setData(devices.filter((device) => device.type === "devices.types.light"))
+    console.log("DATA", data)
   } 
 
   const handleChange = ((e : React.ChangeEvent<HTMLInputElement>) =>{
     setValue(e.target.value);
   })
 
-
   return (
     <>
-      <ApiKeyForm handleChange={handleChange} handleSubmit={handleSubmit} ApiKey={value} ></ApiKeyForm>
+      <ApiKeyInput handleChange={handleChange} handleSubmit={handleSubmit} ApiKey={value} ></ApiKeyInput>
       <p>{value}</p>
       {data !== null && data.map((item) => <Device data={item} key={item.device} ></Device>)}
     </>
   )
 }
 
-export default GetDeviceList
+export default DevicesDashboard

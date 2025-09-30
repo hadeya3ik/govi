@@ -1,10 +1,10 @@
 import Image from "next/image";
-import GetDeviceList from '@/app/components/GetDeviceList'
+import DevicesDashboard from '@/app/components/DevicesDashboard'
 
 export default function Home() {
   return (
-    <div className="">
-      <GetDeviceList></GetDeviceList>
+    <div>
+      <DevicesDashboard></DevicesDashboard>
     </div>
   );
 }

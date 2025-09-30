@@ -8,7 +8,7 @@ export async function POST( request:NextRequest ) {
         body : JSON.stringify({
             "requestId": "uuid",
             "payload": {
-            "sku": "H6008",
+            "sku": device.sku,
             "device": device.ID,
               "capability": {
                 "type": device.type,
