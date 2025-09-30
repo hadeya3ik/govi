@@ -31,8 +31,7 @@ function DevicesDashboard() {
     e.preventDefault()
     const response = await fetch("/api/devices", 
       {
-          body : JSON.stringify({api_key : value}),
-          method : "POST",
+          method : "GET",
           headers : {
               "Content-Type" : "application/json"
           }

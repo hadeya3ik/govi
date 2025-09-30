@@ -1,20 +1,20 @@
-// app/api/set-key/route.ts
-import { cookies } from "next/headers"
+import { NextRequest, NextResponse } from "next/server";
 
-export async function POST(req: Request) {
-  const { key } = await req.json()
+export async function POST(request: NextRequest) {
+  const { api_key } = await request.json();
 
-  if (!key) {
-    return Response.json({ error: "No API key provided" }, { status: 400 })
+  if (!api_key) {
+    return NextResponse.json({ error: "API key required" }, { status: 400 });
   }
 
-  cookies().set("govee_api_key", key, {
+  const response = NextResponse.json({ success: true });
+
+  response.cookies.set("govee_api_key", api_key, {
     httpOnly: true,
-    secure: true,
+    secure: process.env.NODE_ENV === "production",
     sameSite: "strict",
     path: "/",
-  })
+  });
 
-  return Response.json({ message: "API key saved successfully" })
+  return response;
 }
-
