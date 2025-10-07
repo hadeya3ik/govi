@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
-  const { api_key } = await request.json();
-
+  const {api_key}  = await request.json() 
+  console.log("received ", api_key)
   if (!api_key) {
     return NextResponse.json({ error: "API key required" }, { status: 400 });
   }

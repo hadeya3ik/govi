@@ -1,5 +1,5 @@
 'use client'
-import React, {useState} from 'react'
+import React, {useEffect, useState} from 'react'
 import Device from '@/app/components/Device'
 import { DeviceData, Capability } from "../types/device"
 
@@ -24,32 +24,78 @@ function ApiKeyInput({
 }
 
 function DevicesDashboard() {
-  const [value, setValue] = useState("7caf011b-ffe2-40de-a065-cdb5658b2442")
+  const [value, setValue] = useState("")
   const [data, setData] = useState<DeviceData[] | null>(null)
+  const [cookies, setCookie] = useState(false)
 
-  async function handleSubmit(e : React.FormEvent<HTMLFormElement>) {
-    e.preventDefault()
+  async function getDevices() {
+    console.log("requesting w ", value)
     const response = await fetch("/api/devices", 
       {
-          method : "GET",
-          headers : {
-              "Content-Type" : "application/json"
-          }
+        method : "GET",
+        headers : {
+            "Content-Type" : "application/json"
+        }
       }
     )
     const json = await response.json()
     const devices = json.data as DeviceData[]  
     setData(devices.filter((device) => device.type === "devices.types.light"))
     console.log("DATA", data)
+  }
+
+  async function handleSubmit(e : React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    // setCookies()
+    // getDevices()
   } 
 
-  const handleChange = ((e : React.ChangeEvent<HTMLInputElement>) =>{
-    setValue(e.target.value);
+  async function getCookies() {
+    const request = await fetch("/api/get-key")
+    const json = await request.json()
+    console.log(json.api_key)
+    if (json.api_key !== null) {
+      // setValue(json.api_key)
+      getDevices()
+    }
+  }
+
+  async function setCookies(e) {
+    e.preventDefault()
+    console.log("attempting to set cookie")
+    const request = await fetch("/api/set-key", {
+      method : "POST",
+      body : JSON.stringify({
+        api_key : value
+      }),
+      headers : {
+        "Content-Type" : "application/json",
+      }
+    }) 
+
+    const json = await request.json()
+    console.log(json)
+    if (json.success === true) {
+      getDevices()
+    }
+  }
+
+  useEffect(() => {
+    console.log("data", data)
+  })
+
+  // useEffect(() => {
+  //   getCookies()
+  // }, [])
+
+  useEffect(() => {
+    console.log(value)
   })
 
   return (
     <>
-      <ApiKeyInput handleChange={handleChange} handleSubmit={handleSubmit} ApiKey={value} ></ApiKeyInput>
+      {(! cookies) && <p>hmm.. looks like you dont have your api key set</p>}
+      <ApiKeyInput handleChange={(e) => {setValue(e.target.value)}} handleSubmit={setCookies} ApiKey={value} ></ApiKeyInput>
       <p>{value}</p>
       {data !== null && data.map((item) => <Device data={item} key={item.device} ></Device>)}
     </>
