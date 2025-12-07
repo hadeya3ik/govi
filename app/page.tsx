@@ -1,5 +1,5 @@
 import Image from "next/image";
-import DevicesDashboard from '@/app/components/DevicesDashboard'
+import DevicesDashboard from '@/app/components/Dashboard'
 
 export default function Home() {
   return (

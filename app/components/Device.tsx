@@ -11,7 +11,6 @@ function Device({ data }: { data: DeviceData }) {
   const [online, setOnline] = useState(false);
   
   async function getStatus() {
-
     const request = await fetch("/api/state", {
       body: JSON.stringify({
         sku : data.sku, 
@@ -33,8 +32,6 @@ function Device({ data }: { data: DeviceData }) {
   useEffect(() => {
     getStatus()
   }, [])
-
-  console.log("STATUS", capabilityArr)
   
   useEffect(() => {
     capabilityArr !== null ?  setOnline(capabilityArr[0].state?.value) : null
@@ -54,7 +51,6 @@ function Device({ data }: { data: DeviceData }) {
         capabilityArr.map((item) => 
         {  
           const Control = getControlComponent(item) as any;
-          console.log("the state is: ", item.state?.value)
           return (
           <Control 
             key={item.instance}
@@ -96,9 +92,6 @@ function Online({initialValue, capabilityInstance, capabilityType , device, chil
   ) 
 }
 
-
-
-
 async function sendControlRequest(
     ID : string,
     sku : string, 
@@ -106,7 +99,6 @@ async function sendControlRequest(
     type : string, 
     value : number) 
   {
-  console.log("fetch")
   const req = await fetch("/api/control", 
     {
       method : "POST",
@@ -121,9 +113,6 @@ async function sendControlRequest(
         "Content-Type" : "application/json",
       }
     }) 
-  
-  const jsonData = await req.json()
-  console.log(jsonData)
 }
 
 export default Device;
