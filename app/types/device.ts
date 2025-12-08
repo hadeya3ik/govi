@@ -11,6 +11,7 @@ export interface ControlProps {
   capabilityType: string;
   initialValue: any;
   children?: React.ReactNode;
+  onLocalChange?: (value: number) => void;
 }
 
 export interface Capability {
