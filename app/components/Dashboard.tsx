@@ -29,7 +29,6 @@ function Dashboard() {
   const [devices, setDevices] = useState<DeviceData[] | null>(null) 
   const [hasCookies, setHasCookies] = useState(false) 
   const [isEditing, setIsEditing] = useState(false); 
-  const [refreshSignal, setRefreshSignal] = useState(0);
 
 
   async function getDevices() {
@@ -83,9 +82,7 @@ function Dashboard() {
 
   const [selectionMode, setSelectionMode] = useState(false);
   const [selectedDevices, setSelectedDevices] = useState<string[]>([]);
-
-  
-
+  const [deviceUI, setDeviceUI] = useState({});
 
   return (
     <>
@@ -113,7 +110,7 @@ function Dashboard() {
       // && selectedDevices.length > 0 
       &&
        (
-        <GroupControls selected={selectedDevices} devices={devices} onRefresh={() => setRefreshSignal(prev => prev + 1)}/>
+        <GroupControls selected={selectedDevices} devices={devices} />
       )}
       {devices !== null && devices.map((item) => (
         <Device
@@ -129,7 +126,6 @@ function Dashboard() {
               }
             });
           }}
-          refreshSignal={refreshSignal} 
           key={item.device}
         />
       ))}

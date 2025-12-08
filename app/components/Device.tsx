@@ -7,10 +7,10 @@ import TemperatureControl from '@/app/components/controls/TemperatureControl'
 import { DeviceData, Capability, ControlProps } from "../types/device"
 import {getTempHexColor} from '@/app/helpers/helpers.js'
 
-function Device({ data, selectionMode, selected, onSelect, refreshSignal }) {
+function Device({ data, selectionMode, selected, onSelect }) {
   const [capabilityArr, setCapabilityArr] = useState<Capability[] | null>(null);
-  const [localColor, setLocalColor] = useState<number | null>(null);
   const [localBrightness, setLocalBrightness] = useState(100);
+  const [localColor, setLocalColor] = useState<number | null>(null);
   const [online, setOnline] = useState(false);
   
   async function getStatus() {
@@ -49,10 +49,6 @@ function Device({ data, selectionMode, selected, onSelect, refreshSignal }) {
   useEffect(() => {
     getStatus()
   }, [])
-
-  useEffect(() => {
-  getStatus();
-}, [refreshSignal]);
   
   useEffect(() => {
     capabilityArr !== null ?  setOnline(capabilityArr[0].state?.value) : null

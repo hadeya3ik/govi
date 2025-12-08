@@ -7,7 +7,7 @@ import TemperatureControl from '@/app/components/controls/TemperatureControl'
 import { Capability, DeviceData } from "../types/device"
 import { sendControlRequest } from '@/app/components/Device'
 
-export default function GroupControls({ devices, selected, onRefresh }) {
+export default function GroupControls({ devices, selected }) {
   const selectedDevices = devices.filter(d => selected.includes(d.device))
 
   const sharedCapabilities = getSharedCapabilities(selectedDevices)
@@ -31,7 +31,6 @@ export default function GroupControls({ devices, selected, onRefresh }) {
               value
             )
           })
-          onRefresh();
         }
 
         return (
