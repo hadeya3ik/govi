@@ -2,6 +2,7 @@
 import React, {useEffect, useState} from 'react'
 import Device from '@/app/components/Device'
 import { DeviceData, Capability } from "../types/device"
+import GroupControls from '@/app/components/GroupControls'
 
 function InputForm({
     ApiKey,
@@ -28,6 +29,8 @@ function Dashboard() {
   const [devices, setDevices] = useState<DeviceData[] | null>(null) 
   const [hasCookies, setHasCookies] = useState(false) 
   const [isEditing, setIsEditing] = useState(false); 
+  const [refreshSignal, setRefreshSignal] = useState(0);
+
 
   async function getDevices() {
     const response = await fetch("/api/devices", 
@@ -78,6 +81,12 @@ function Dashboard() {
     getCookies()
   }, [])
 
+  const [selectionMode, setSelectionMode] = useState(false);
+  const [selectedDevices, setSelectedDevices] = useState<string[]>([]);
+
+  
+
+
   return (
     <>
         { hasCookies ?  
@@ -93,7 +102,37 @@ function Dashboard() {
             <InputForm ApiKey={apiKey} handleChange={(e) => {setApiKey(e.target.value)}} handleSubmit={setCookies} ></InputForm>
           </div>
         }
-      {devices !== null && devices.map((item) => <Device data={item} key={item.device}></Device>)}
+      <button onClick={() => {
+        setSelectionMode(!selectionMode);
+        console.log("SELECTION MODE: ", selectionMode)
+        // if (!selectionMode) setSelectedDevices([]);
+         }}>
+        {selectionMode ? "Exit Selection Mode" : "Select Bulbs"}
+      </button>
+      {selectionMode 
+      // && selectedDevices.length > 0 
+      &&
+       (
+        <GroupControls selected={selectedDevices} devices={devices} onRefresh={() => setRefreshSignal(prev => prev + 1)}/>
+      )}
+      {devices !== null && devices.map((item) => (
+        <Device
+          data={item}
+          selectionMode={selectionMode}
+          selected={selectedDevices.includes(item.device)}
+          onSelect={() => {
+            setSelectedDevices(prev => {
+              if (prev.includes(item.device)) {
+                return prev.filter(id => id !== item.device);
+              } else {
+                return [...prev, item.device];
+              }
+            });
+          }}
+          refreshSignal={refreshSignal} 
+          key={item.device}
+        />
+      ))}
     </>
   )
 }

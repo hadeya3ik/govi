@@ -1,3 +1,5 @@
+'use client'
+
 import React, {useEffect, useState} from "react"
 import {sendControlRequest} from '@/app/components/Device';
 import { ControlProps } from "@/app/types/device";

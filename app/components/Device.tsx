@@ -7,7 +7,7 @@ import TemperatureControl from '@/app/components/controls/TemperatureControl'
 import { DeviceData, Capability, ControlProps } from "../types/device"
 import {getTempHexColor} from '@/app/helpers/helpers.js'
 
-function Device({ data }: { data: DeviceData }) {
+function Device({ data, selectionMode, selected, onSelect, refreshSignal }) {
   const [capabilityArr, setCapabilityArr] = useState<Capability[] | null>(null);
   const [localColor, setLocalColor] = useState<number | null>(null);
   const [localBrightness, setLocalBrightness] = useState(100);
@@ -26,23 +26,21 @@ function Device({ data }: { data: DeviceData }) {
     const res = await request.json()  
 
     const power = res.payload.capabilities?.find(c => c.instance === "online");
+    
     if (!power?.state?.value) {
       setOnline(false);
       setLocalColor(null);
       return;
     }    
-    ["colorRgb", "colorTemperatureK"].forEach(instance => {
+    
+    ["colorRgb", "colorTemperatureK", "brightness"].forEach(instance => {
       const cap = res.payload.capabilities?.find(c => c.instance === instance);
-      if (cap?.state?.value !== 0) {
+      if (instance !== "brightness" && cap?.state?.value !== 0) {
         setLocalColor(cap.state.value);
-      }
-    });
-
-    const cap = res.payload.capabilities?.find(c => c.instance === "brightness");
-    if (cap?.state?.value !== 0) {
-      setLocalBrightness(cap.state.value);
-    }
-
+      } else if (cap?.state?.value !== 0) {
+        setLocalBrightness(cap.state.value);
+    }});
+    
     setCapabilityArr(
       res.payload.capabilities
     );
@@ -51,6 +49,10 @@ function Device({ data }: { data: DeviceData }) {
   useEffect(() => {
     getStatus()
   }, [])
+
+  useEffect(() => {
+  getStatus();
+}, [refreshSignal]);
   
   useEffect(() => {
     capabilityArr !== null ?  setOnline(capabilityArr[0].state?.value) : null
@@ -68,13 +70,18 @@ function Device({ data }: { data: DeviceData }) {
 
   return (
     <div>
-      <div
-      className='bulb w-[100px] h-[100px] rounded-full'
-      style={{ 
-        backgroundColor: bulbColor, 
-        opacity: localBrightness / 100
-       }}> 
-      </div>
+      {/* Checkbox only in selection mode */}
+      {selectionMode && (
+        <input
+          type="checkbox"
+          checked={selected}
+          onChange={onSelect}
+          className="device-checkbox"
+        />
+      )}
+
+      <BulbDisplay bulbColor={bulbColor} localBrightness={localBrightness} 
+      ></BulbDisplay>
       <p>{data.deviceName}</p>
       {
         capabilityArr !== null &&
@@ -82,42 +89,59 @@ function Device({ data }: { data: DeviceData }) {
             { "online? " + online}
           </div>
       }
-      {capabilityArr && online &&
-        capabilityArr.map((item) => {
-          const Control = getControlComponent(item);
-          if (!Control) return null; 
-
-          const isColor = item.instance === "colorRgb";
-          const isTemp = item.instance === "colorTemperatureK";
-          const isBrightness = item.instance === "brightness";
-
-          const initialValue =
-            isColor ? localColor : item.state?.value ?? null;
-
-          const onChange =
-            isColor || isTemp ? setLocalColor : ( isBrightness ? setLocalBrightness : undefined);
-
-          return (
-            <Control
-              key={item.instance}
-              initialValue={initialValue}
-              capabilityInstance={item.instance}
-              capabilityType={item.type}
-              sku={data.sku}
-              device={data.device}
-              onLocalChange={onChange}
-            >
-              control: {item.instance} device: {data.deviceName}
-            </Control>
-          );
-        })
-      }
-
+      {!selectionMode && (
+          <BulbControls data={data} online={online} capabilityArr={capabilityArr} localColor={localColor} setLocalColor={setLocalColor} setLocalBrightness={setLocalBrightness}></BulbControls>
+      )}
     </div>
   )
 }
 
- function getControlComponent(item: Capability) {
+function BulbDisplay({bulbColor, localBrightness}) {
+  return (<div
+    className='bulb w-[100px] h-[100px] rounded-full'
+    style={{ 
+      backgroundColor: bulbColor, 
+      opacity: localBrightness / 100
+      }}> 
+  </div>)
+}
+
+function BulbControls({data, online, capabilityArr, localColor, setLocalColor, setLocalBrightness}) {
+  return (<>
+    {capabilityArr && online &&
+    capabilityArr.map((item) => {
+      const Control = getControlComponent(item);
+      if (!Control) return null; 
+
+      const isColor = item.instance === "colorRgb";
+      const isTemp = item.instance === "colorTemperatureK";
+      const isBrightness = item.instance === "brightness";
+
+      const initialValue =
+        isColor ? localColor : item.state?.value ?? null;
+
+      const onChange =
+        isColor || isTemp ? setLocalColor : ( isBrightness ? setLocalBrightness : undefined);
+
+      return (
+        <Control
+          key={item.instance}
+          initialValue={initialValue}
+          capabilityInstance={item.instance}
+          capabilityType={item.type}
+          sku={data.sku}
+          device={data.device}
+          onLocalChange={onChange}
+        >
+          control: {item.instance} device: {data.deviceName}
+        </Control>
+      );
+    })
+  }
+  </>)
+}
+
+function getControlComponent(item: Capability) {
   if (item.instance === "powerSwitch") {
     return PowerControl;
   }
@@ -139,8 +163,6 @@ function getRGBFromNumber(number : number) {
   const b = number & 0xFF;
   return { r, g, b };
 }
-
-
 
 async function sendControlRequest(
     ID : string,
