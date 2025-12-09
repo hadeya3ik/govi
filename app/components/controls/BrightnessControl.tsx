@@ -9,9 +9,9 @@ export default function BrightnessControl({device, sku, capabilityInstance, capa
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     e.preventDefault();
     const nextValue = Number(e.target.value); 
-    sendControlRequest(device, sku, capabilityInstance, capabilityType, Number(nextValue));
+    sendControlRequest(device, sku, capabilityInstance, capabilityType, nextValue);
     setBrightnessLevel(nextValue);
-    onLocalChange(nextValue)
+    onLocalChange({ brightnessValue: nextValue })
   }
 
   return (

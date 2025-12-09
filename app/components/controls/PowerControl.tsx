@@ -1,3 +1,5 @@
+'use client'
+
 import React, {useState, useEffect} from "react"
 import {sendControlRequest} from '@/app/components/Device';
 import { ControlProps } from "@/app/types/device";
@@ -13,6 +15,10 @@ export default function PowerControl({device, sku, capabilityInstance, capabilit
       return nextValue;
     });
   }
+  useEffect(() => {
+  if (initialValue == null) return;
+  setPowerState(initialValue);
+  }, [initialValue]);
 
   return (
     <div>

@@ -23,12 +23,13 @@ export default function TemperatureControl({ device, sku, capabilityInstance, ca
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const nextValue = Number(e.target.value);
     setTempLevel(nextValue);
+    onLocalChange({ colorValue: nextValue })
 
     const { r, g, b } = getTempHexColor(nextValue);
     const hex = ((r << 16) | (g << 8) | b); // convert rgb → hex number
 
     setColor(`rgb(${r}, ${g}, ${b})`);
-    onLocalChange(hex);
+    // onLocalChange(hex);
 
     sendControlRequest(device, sku, capabilityInstance, capabilityType, nextValue);
   }

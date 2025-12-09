@@ -30,6 +30,7 @@ function Dashboard() {
   const [hasCookies, setHasCookies] = useState(false) 
   const [isEditing, setIsEditing] = useState(false); 
 
+  const [deviceUI, setDeviceUI] = useState({});
 
   async function getDevices() {
     const response = await fetch("/api/devices", 
@@ -41,9 +42,91 @@ function Dashboard() {
       }
     )
     const json = await response.json()
-    const data = json.data as DeviceData[]  
-    setDevices(data.filter((device) => device.type === "devices.types.light"))
+    let data = json.data as DeviceData[]  
+    data = data.filter((device) => device.type === "devices.types.light")
+    console.log(data)
+    console.log(devices)
+    setDevices(data.map(deviceDetails => (
+      {...deviceDetails,
+        colorValue : 9000,
+        brightnessValue : 100, 
+        online : true, 
+        selected : false, 
+
+      }) ))
   }
+
+  async function settDevices() {
+    console.log("DEVICES : ")
+    if (!devices) {
+      return 
+    }
+
+    for (const device of devices) {
+      const request = await fetch("/api/state", {
+        body: JSON.stringify({
+          sku : device.sku, 
+          ID : device.device
+        }), 
+        headers : {"Content-Type" : "application/json"}, 
+        method : "POST"
+      })
+      const res = await request.json()
+      console.log(res.payload.capabilities)
+
+      const powerState = res.payload.capabilities?.find(item => item.instance === "online");
+      const switchState = res.payload.capabilities?.find(item => item.instance === "powerSwitch");
+      const brightnessState = res.payload.capabilities?.find(item => item.instance === "brightness");
+      const colorState = res.payload.capabilities?.find(item => item.instance === "colorRgb");
+      const tempState = res.payload.capabilities?.find(item => item.instance === "colorTemperatureK");
+
+      device.colorValue = colorState?.state.value;
+      device.brightnessValue = brightnessState?.state.value;
+      device.online = powerState?.state.value;
+      device.switch = switchState?.state.value;
+
+      if (colorState?.state.value !== 0) {
+        device.colorValue = colorState?.state.value;
+      } else if (tempState?.state.value !== 0) {
+        device.colorValue = tempState?.state.value;
+      } else if (device.online) {
+        device.online = true;
+      } else if (device.switch) {
+        device.switch = true;
+      }
+
+      if (!device.online) {
+        device.colorValue = 0 
+      }
+
+      console.log("attempting to set deviceUI")
+      console.log(device.device, device.colorValue,)
+
+      setDeviceUI(prev => ({
+      ...prev,
+      [device.device]: {
+        colorValue: device.colorValue,
+        brightnessValue: device.brightnessValue,
+        powerState: device.online, 
+        switchState : device.switch
+      }
+    }));
+    }
+    
+    console.log("DEVICES : ")
+    console.log(devices)
+
+  }
+
+  const updateDeviceUI = (id, updates) => {
+  setDeviceUI(prev => ({
+    ...prev,
+    [id]: {
+      ...prev[id],
+      ...updates
+    }
+  }));
+};
 
   async function getCookies() {
     const request = await fetch("/api/get-key")
@@ -80,9 +163,19 @@ function Dashboard() {
     getCookies()
   }, [])
 
+  useEffect(() => {
+    console.log("deviceUI", deviceUI)
+    devices?.forEach(item => {
+      console.log(deviceUI[item.device])
+    }) 
+  }, [deviceUI])
+
+  useEffect(() => {
+    settDevices()
+  }, [devices])
+
   const [selectionMode, setSelectionMode] = useState(false);
   const [selectedDevices, setSelectedDevices] = useState<string[]>([]);
-  const [deviceUI, setDeviceUI] = useState({});
 
   return (
     <>
@@ -108,26 +201,30 @@ function Dashboard() {
       </button>
       {selectionMode 
       // && selectedDevices.length > 0 
-      &&
+      && devices &&
        (
-        <GroupControls selected={selectedDevices} devices={devices} />
-      )}
-      {devices !== null && devices.map((item) => (
-        <Device
-          data={item}
-          selectionMode={selectionMode}
-          selected={selectedDevices.includes(item.device)}
-          onSelect={() => {
-            setSelectedDevices(prev => {
-              if (prev.includes(item.device)) {
-                return prev.filter(id => id !== item.device);
-              } else {
-                return [...prev, item.device];
-              }
-            });
-          }}
-          key={item.device}
+        <GroupControls
+          selected={selectedDevices}
+          devices={devices}
+          updateUIS={(id, updates) => updateDeviceUI(id, updates)}
         />
+      )}
+      {deviceUI !== null && devices !== null && devices.map((item) => (
+        <Device
+        key={item.device}
+        data={item}
+        uiState={deviceUI[item.device]}
+        updateUI={updates => updateDeviceUI(item.device, updates)}
+        selectionMode={selectionMode}
+        selected={selectedDevices.includes(item.device)}
+        onSelect={() => {
+          setSelectedDevices(prev =>
+              prev.includes(item.device)
+                ? prev.filter(id => id !== item.device)
+                : [...prev, item.device]
+            );
+          }}
+      />
       ))}
     </>
   )

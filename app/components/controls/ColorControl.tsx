@@ -20,7 +20,7 @@ export default function ColorControl({device, sku, capabilityInstance, capabilit
     e.preventDefault();
     const nextValue = hexToNumber(e.target.value);
     setColorValue(nextValue);
-    onLocalChange(nextValue)
+    onLocalChange({ colorValue: nextValue })
     console.log("nextValue", nextValue)
     sendControlRequest(device, sku, capabilityInstance, capabilityType, nextValue);
   }

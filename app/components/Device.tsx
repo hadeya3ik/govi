@@ -7,11 +7,8 @@ import TemperatureControl from '@/app/components/controls/TemperatureControl'
 import { DeviceData, Capability, ControlProps } from "../types/device"
 import {getTempHexColor} from '@/app/helpers/helpers.js'
 
-function Device({ data, selectionMode, selected, onSelect }) {
+function Device({ data, uiState, updateUI, selectionMode, selected, onSelect }) {
   const [capabilityArr, setCapabilityArr] = useState<Capability[] | null>(null);
-  const [localBrightness, setLocalBrightness] = useState(100);
-  const [localColor, setLocalColor] = useState<number | null>(null);
-  const [online, setOnline] = useState(false);
   
   async function getStatus() {
     const request = await fetch("/api/state", {
@@ -24,49 +21,38 @@ function Device({ data, selectionMode, selected, onSelect }) {
     })
 
     const res = await request.json()  
-
-    const power = res.payload.capabilities?.find(c => c.instance === "online");
-    
-    if (!power?.state?.value) {
-      setOnline(false);
-      setLocalColor(null);
-      return;
-    }    
-    
-    ["colorRgb", "colorTemperatureK", "brightness"].forEach(instance => {
-      const cap = res.payload.capabilities?.find(c => c.instance === instance);
-      if (instance !== "brightness" && cap?.state?.value !== 0) {
-        setLocalColor(cap.state.value);
-      } else if (cap?.state?.value !== 0) {
-        setLocalBrightness(cap.state.value);
-    }});
-    
     setCapabilityArr(
       res.payload.capabilities
     );
   }
-  
+
   useEffect(() => {
     getStatus()
   }, [])
-  
-  useEffect(() => {
-    capabilityArr !== null ?  setOnline(capabilityArr[0].state?.value) : null
-    console.log("capabilityArr", data.deviceName, capabilityArr)
-    console.log("localColor", localColor)
-  }, [capabilityArr])
 
+  console.log("uiState")
+  console.log(uiState)
+
+  if (uiState) {
+    console.log("wgatgeeee")
+    console.log(uiState.colorValue)
+  }
 
   let bulbColor = "#000";
+  let bulbBrightness = 100;
+  let brightness = 0;
+  let online = false;
 
-  if (localColor !== null) {
-    const { r, g, b } = localColor > 10000 ? getRGBFromNumber(localColor) : getTempHexColor(localColor);
+  if (uiState) {
+    const { r, g, b } = uiState.colorValue > 10000 ? getRGBFromNumber(uiState.colorValue) : getTempHexColor(uiState.colorValue);
     bulbColor = `rgb(${r}, ${g}, ${b})`;
+    online = uiState.powerState
+    bulbBrightness = uiState.brightnessValue; 
   }
 
   return (
     <div>
-      {/* Checkbox only in selection mode */}
+      
       {selectionMode && (
         <input
           type="checkbox"
@@ -76,7 +62,7 @@ function Device({ data, selectionMode, selected, onSelect }) {
         />
       )}
 
-      <BulbDisplay bulbColor={bulbColor} localBrightness={localBrightness} 
+      <BulbDisplay bulbColor={bulbColor} bulbBrightness={bulbBrightness} 
       ></BulbDisplay>
       <p>{data.deviceName}</p>
       {
@@ -86,23 +72,28 @@ function Device({ data, selectionMode, selected, onSelect }) {
           </div>
       }
       {!selectionMode && (
-          <BulbControls data={data} online={online} capabilityArr={capabilityArr} localColor={localColor} setLocalColor={setLocalColor} setLocalBrightness={setLocalBrightness}></BulbControls>
+        
+          <BulbControls data={data} online={online} capabilityArr={capabilityArr} updateUI={updateUI} uiState={uiState}
+          // setLocalColor={setLocalColor} setLocalBrightness={setLocalBrightness}
+          ></BulbControls>
       )}
     </div>
   )
 }
 
-function BulbDisplay({bulbColor, localBrightness}) {
+function BulbDisplay({bulbColor, bulbBrightness}) {
   return (<div
     className='bulb w-[100px] h-[100px] rounded-full'
     style={{ 
       backgroundColor: bulbColor, 
-      opacity: localBrightness / 100
+      opacity: bulbBrightness / 100
       }}> 
   </div>)
 }
 
-function BulbControls({data, online, capabilityArr, localColor, setLocalColor, setLocalBrightness}) {
+function BulbControls({data, online, capabilityArr, updateUI, uiState
+  // setLocalColor, setLocalBrightness
+}) {
   return (<>
     {capabilityArr && online &&
     capabilityArr.map((item) => {
@@ -112,12 +103,16 @@ function BulbControls({data, online, capabilityArr, localColor, setLocalColor, s
       const isColor = item.instance === "colorRgb";
       const isTemp = item.instance === "colorTemperatureK";
       const isBrightness = item.instance === "brightness";
+      const isPower = item.instance === "powerSwitch";
 
-      const initialValue =
-        isColor ? localColor : item.state?.value ?? null;
-
-      const onChange =
-        isColor || isTemp ? setLocalColor : ( isBrightness ? setLocalBrightness : undefined);
+      let initialValue = null; 
+      if (isColor || isTemp) {
+        initialValue = uiState.colorValue 
+      } else if (isBrightness) {
+        initialValue = uiState.brightnessValue
+      } else if (isPower) {
+        initialValue = uiState.switchState
+      } 
 
       return (
         <Control
@@ -127,7 +122,7 @@ function BulbControls({data, online, capabilityArr, localColor, setLocalColor, s
           capabilityType={item.type}
           sku={data.sku}
           device={data.device}
-          onLocalChange={onChange}
+          onLocalChange={updateUI}
         >
           control: {item.instance} device: {data.deviceName}
         </Control>
