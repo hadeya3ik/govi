@@ -4,10 +4,21 @@ import BrightnessControl from '@/app/components/controls/BrightnessControl'
 import ColorControl from '@/app/components/controls/ColorControl'
 import PowerControl from '@/app/components/controls/PowerControl'
 import TemperatureControl from '@/app/components/controls/TemperatureControl'
-import { DeviceData, Capability, ControlProps } from "../types/device"
+import { DeviceData, Capability, DeviceUIState } from "../types/device"
 import {getTempHexColor} from '@/app/helpers/helpers.js'
 
-function Device({ data, uiState, updateUI, selectionMode, selected, onSelect }) {
+function Device({ 
+    data, uiState, updateUI, selectionMode, selected, onSelect 
+  }: 
+  {
+    data: DeviceData;
+    uiState: DeviceUIState | null;
+    updateUI: (deviceId: string, update: any) => void;
+    selectionMode: boolean;
+    selected: boolean;
+    onSelect: () => void;
+  })
+  {
   const [capabilityArr, setCapabilityArr] = useState<Capability[] | null>(null);
   
   async function getStatus() {
@@ -32,10 +43,10 @@ function Device({ data, uiState, updateUI, selectionMode, selected, onSelect }) 
 
   let bulbColor = "#000";
   let bulbBrightness = 100;
-  let brightness = 0;
   let online = false;
 
   if (uiState) {
+    if (uiState.colorValue) {}
     const { r, g, b } = uiState.colorValue > 10000 ? getRGBFromNumber(uiState.colorValue) : getTempHexColor(uiState.colorValue);
     bulbColor = `rgb(${r}, ${g}, ${b})`;
     online = uiState.powerState
@@ -73,7 +84,7 @@ function Device({ data, uiState, updateUI, selectionMode, selected, onSelect }) 
   )
 }
 
-function BulbDisplay({bulbColor, bulbBrightness}) {
+function BulbDisplay({bulbColor, bulbBrightness} : {bulbColor : string, bulbBrightness : number}) {
   return (<div
     className='bulb w-[100px] h-[100px] rounded-full'
     style={{ 
@@ -83,9 +94,16 @@ function BulbDisplay({bulbColor, bulbBrightness}) {
   </div>)
 }
 
-function BulbControls({data, online, capabilityArr, updateUI, uiState
-  // setLocalColor, setLocalBrightness
-}) {
+function BulbControls({
+  data, online, capabilityArr, uiState, updateUI
+  } : 
+  {
+    data: DeviceData;
+    online : boolean;
+    capabilityArr : Capability[] | null;
+    uiState: DeviceUIState | null;
+    updateUI: (deviceId: string, update: any) => void;
+  }) {
   return (<>
     {capabilityArr && online &&
     capabilityArr.map((item) => {
@@ -99,11 +117,11 @@ function BulbControls({data, online, capabilityArr, updateUI, uiState
 
       let initialValue = null; 
       if (isColor || isTemp) {
-        initialValue = uiState.colorValue 
+        initialValue = uiState?.colorValue 
       } else if (isBrightness) {
-        initialValue = uiState.brightnessValue
+        initialValue = uiState?.brightnessValue
       } else if (isPower) {
-        initialValue = uiState.switchState
+        initialValue = uiState?.switchState
       } 
 
       return (

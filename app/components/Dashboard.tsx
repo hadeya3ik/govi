@@ -1,14 +1,16 @@
 'use client'
 import React, {useEffect, useState} from 'react'
 import Device from '@/app/components/Device'
-import { DeviceData, Capability } from "../types/device"
+import { DeviceData, Capability, DeviceUIState, DeviceUIMap } from "../types/device"
 import GroupControls from '@/app/components/GroupControls'
 
 
-function Dashboard({devices}) {
-  const [deviceUI, setDeviceUI] = useState({});
+function Dashboard({devices} : { devices: DeviceData[] }) {
+  const [deviceUI, setDeviceUI] = useState<DeviceUIMap>({});
+  const [selectionMode, setSelectionMode] = useState(false);
+  const [selectedDevices, setSelectedDevices] = useState<string[]>([]);
 
-  async function settDevices() {
+  async function setDevices() {
     if (!devices) {
       return 
     }
@@ -22,32 +24,27 @@ function Dashboard({devices}) {
         headers : {"Content-Type" : "application/json"}, 
         method : "POST"
       })
-      const res = await request.json()
+      const res = await request.json() 
+      const cap = res.payload.capabilities as Capability[] 
 
-      const powerState = res.payload.capabilities?.find(item => item.instance === "online");
-      const switchState = res.payload.capabilities?.find(item => item.instance === "powerSwitch");
-      const brightnessState = res.payload.capabilities?.find(item => item.instance === "brightness");
-      const colorState = res.payload.capabilities?.find(item => item.instance === "colorRgb");
-      const tempState = res.payload.capabilities?.find(item => item.instance === "colorTemperatureK");
+      const power = cap.find(item => item.instance === "online");
+      const switchState = cap.find(item => item.instance === "powerSwitch");
+      const brightness = cap.find(item => item.instance === "brightness");
+      const color = cap.find(item => item.instance === "colorRgb");
+      const temp = cap.find(item => item.instance === "colorTemperatureK");
 
-      device.colorValue = colorState?.state.value;
-      device.brightnessValue = brightnessState?.state.value;
-      device.online = powerState?.state.value;
-      device.switch = switchState?.state.value;
+      device.online = power?.state?.value;
+      device.switch = switchState?.state?.value;
+      device.brightnessValue = brightness?.state?.value;
 
-      if (colorState?.state.value !== 0) {
-        device.colorValue = colorState?.state.value;
-      } else if (tempState?.state.value !== 0) {
-        device.colorValue = tempState?.state.value;
-      } else if (device.online) {
-        device.online = true;
-      } else if (device.switch) {
-        device.switch = true;
+      if (color?.state?.value) {
+        device.colorValue = color.state.value;
+      } else if (temp?.state?.value) {
+        device.colorValue = temp.state.value;
+      } else {
+        device.colorValue = 0;
       }
 
-      if (!device.online) {
-        device.colorValue = 0 
-      }
       setDeviceUI(prev => ({
       ...prev,
       [device.device]: {
@@ -60,26 +57,24 @@ function Dashboard({devices}) {
     }
   }
 
-  const updateDeviceUI = (id, updates) => {
-  setDeviceUI(prev => ({
-    ...prev,
-    [id]: {
-      ...prev[id],
-      ...updates
-    }
-  }));
-};
+  const updateDeviceUI = (deviceId: string, update:any) => {
+    setDeviceUI(prev => ({
+      ...prev,
+      [deviceId]: {
+        ...prev[deviceId],
+        ...update,
+      }
+    }));
+  };
 
   useEffect(() => {
-    settDevices()
+    setDevices()
+    console.log("SET")
   }, [devices])
 
   useEffect(() => {
     console.log("deviceUI", deviceUI)
   })
-
-  const [selectionMode, setSelectionMode] = useState(false);
-  const [selectedDevices, setSelectedDevices] = useState<string[]>([]);
 
   return (
     <>

@@ -2,7 +2,7 @@ import React, {useEffect, useState} from "react"
 import {sendControlRequest} from '@/app/components/Device';
 import { ControlProps } from "@/app/types/device";
 
-export default function BrightnessControl({device, sku, capabilityInstance, capabilityType, initialValue, onLocalChange = () => {}, children} : ControlProps) {
+export default function BrightnessControl({device, sku, capabilityInstance, capabilityType, initialValue, onLocalChange = () => {}} : ControlProps) {
 
   const [brightnessLevel, setBrightnessLevel] = useState(initialValue)
 

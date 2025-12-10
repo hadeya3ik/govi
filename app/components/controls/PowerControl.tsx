@@ -4,7 +4,7 @@ import React, {useState, useEffect} from "react"
 import {sendControlRequest} from '@/app/components/Device';
 import { ControlProps } from "@/app/types/device";
 
-export default function PowerControl({device, sku, capabilityInstance, capabilityType, initialValue, onLocalChange = () => {}, children} : ControlProps) {
+export default function PowerControl({device, sku, capabilityInstance, capabilityType, initialValue, onLocalChange = () => {}} : ControlProps) {
   const [powerState, setPowerState] = useState<0 | 1>(initialValue)
 
   function handleChange(e : React.ChangeEvent<HTMLInputElement>) {

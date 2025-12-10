@@ -4,6 +4,28 @@ export interface Payload {
   capabilities: Capability[]
 }
 
+export interface DeviceUIState {
+  colorValue: number ;
+  brightnessValue: number;
+  powerState: boolean ;
+  switchState: number;
+}
+
+
+export interface GroupState {
+  colorValue: number | null ;
+  brightnessValue: number | null;
+  switchState: number| null;
+}
+
+export interface DeviceUIMap extends Record<string, DeviceUIState> {}
+
+type UIUpdate =
+  | number
+  | { brightnessValue: number }
+  | { colorValue: number }
+  | { switchState: number };
+
 export interface ControlProps {
   device: string;
   sku : string;
@@ -11,7 +33,7 @@ export interface ControlProps {
   capabilityType: string;
   initialValue: any;
   children?: React.ReactNode;
-  onLocalChange?: (value: number) => void;
+  onLocalChange?: any;
 }
 
 export interface Capability {
@@ -22,11 +44,20 @@ export interface Capability {
     }
   parameters?: any
 }
-  
-export interface DeviceData {
+
+export interface ApiDeviceData {
   device: string
   deviceName: string
   sku: string
   type: string
   capabilities: Capability[]
 }
+
+export interface DeviceData extends ApiDeviceData {
+  colorValue: number
+  brightnessValue: number
+  online: boolean
+  switch: number
+  selected: boolean
+}
+  

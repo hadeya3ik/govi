@@ -12,7 +12,7 @@ function hexToNumber(hex : string) {
   return parseInt(hex.replace("#", ""), 16);
 }
 
-export default function ColorControl({device, sku, capabilityInstance, capabilityType, initialValue, onLocalChange = () => {}, children} : ControlProps) {
+export default function ColorControl({device, sku, capabilityInstance, capabilityType, initialValue, onLocalChange = () => {}} : ControlProps) {
   const [colorValue, setColorValue] = useState(initialValue); 
   const hexColorValue = "#" + numberToHex(colorValue);
 

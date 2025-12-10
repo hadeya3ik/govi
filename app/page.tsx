@@ -1,7 +1,8 @@
 'use client'
-import Image from "next/image";
 import { useState, useEffect } from "react";
 import DevicesDashboard from '@/app/components/Dashboard'
+import { ApiDeviceData, DeviceData } from "@/app/types/device"
+
 function InputForm({
     ApiKey,
     handleChange,
@@ -24,7 +25,7 @@ function InputForm({
 
 export default function Home() {
     const [apiKey, setApiKey] = useState("") 
-    const [devices, setDevices] = useState<DeviceData[] | null>(null) 
+    const [devices, setDevices] = useState<DeviceData[]>([]) 
     const [hasCookies, setHasCookies] = useState(false) 
     const [isEditing, setIsEditing] = useState(false); 
 
@@ -38,8 +39,10 @@ export default function Home() {
           }
         )
         const json = await response.json()
-        let data = json.data as DeviceData[]  
+        let data = json.data as ApiDeviceData[];
+
         data = data.filter((device) => device.type === "devices.types.light")
+        
         console.log(data)
         console.log(devices)
         setDevices(data.map(deviceDetails => (
@@ -47,8 +50,9 @@ export default function Home() {
             colorValue : 9000,
             brightnessValue : 100, 
             online : true, 
+            switch : 1, 
             selected : false, 
-          }) ))
+          }) ) as DeviceData[] )
       }
 
       async function getCookies() {
@@ -77,9 +81,7 @@ export default function Home() {
           const json = await request.json()
           if (json.success === true) {
             getDevices()
-          } else {
-            // ERROR api - key is not valid
-          }
+          } 
         }
 
       useEffect(() => {
@@ -96,7 +98,7 @@ export default function Home() {
           </>
           : 
           <div> 
-            <p>hmm.. looks like you dont have your api key set</p>
+            <p>hmm.. looks like you do not have your api key set</p>
             <InputForm ApiKey={apiKey} handleChange={(e) => {setApiKey(e.target.value)}} handleSubmit={setCookies} ></InputForm>
           </div>
         }
