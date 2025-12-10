@@ -12,6 +12,7 @@ export default function GroupControls({ selected, devices, updateUIS }) {
   // updateUIS: function that can update multiple device UI states
 
   const selectedDevices = devices.filter((d) => selected.includes(d.device));
+  const sharedCapabilities = getSharedCapabilities(selectedDevices)
 
   // One shared state for group control UIs
   const [groupState, setGroupState] = useState({
@@ -26,57 +27,31 @@ export default function GroupControls({ selected, devices, updateUIS }) {
     setGroupState((prev) => ({ ...prev, ...partial }));
   }
 
+  useEffect(() => {
+    console.log(groupState)
+  })
+
   // Send batch API + update each UI
   async function applyBatch() {
     for (const dev of selectedDevices) {
       const updates = {};
 
       if (groupState.colorValue !== null) {
-        await sendControlRequest(
-          dev.device,
-          dev.sku,
-          "colorRgb",
-          "devices.capabilities.color_setting",
-          groupState.colorValue
-        );
         updates.colorValue = groupState.colorValue;
       }
 
       if (groupState.brightnessValue !== null) {
-        await sendControlRequest(
-          dev.device,
-          dev.sku,
-          "brightness",
-          "devices.capabilities.range",
-          groupState.brightnessValue
-        );
         updates.brightnessValue = groupState.brightnessValue;
       }
 
       if (groupState.switchState !== null) {
-        await sendControlRequest(
-          dev.device,
-          dev.sku,
-          "powerSwitch",
-          "devices.capabilities.on_off",
-          groupState.switchState
-        );
         updates.switchState = groupState.switchState;
       }
 
       if (groupState.tempValue !== null) {
-        await sendControlRequest(
-          dev.device,
-          dev.sku,
-          "colorTemperatureK",
-          "devices.capabilities.color_setting",
-          groupState.tempValue
-        );
         updates.colorValue = groupState.tempValue;
       }
 
-      // ❗THIS IS THE IMPORTANT PART
-      // updates the UI state for each device from Dashboard
       updateUIS(dev.device, updates);
     }
   }
@@ -89,52 +64,74 @@ export default function GroupControls({ selected, devices, updateUIS }) {
     <div className="p-4 border rounded-xl mt-4">
       <h2 className="font-bold mb-2">Group Controls ({selectedDevices.length} devices)</h2>
 
-      {/* Color */}
-      <ColorControl
-        initialValue={groupState.colorValue ?? 0}
-        capabilityInstance="colorRgb"
-        capabilityType="devices.capabilities.color_setting"
-        device="_group_"
-        sku="_group_"
-        onLocalChange={(updates) => handleGroupUpdate(updates)}
-      />
+      {sharedCapabilities.map((cap) => {
+        const Control = getControlComponent(cap)
+        if (!Control) return null
 
-      {/* Brightness */}
-      <BrightnessControl
-        initialValue={groupState.brightnessValue ?? 100}
-        capabilityInstance="brightness"
-        capabilityType="devices.capabilities.range"
-        device="_group_"
-        sku="_group_"
-        onLocalChange={(updates) => handleGroupUpdate(updates)}
-      />
+        // 3️⃣ Group onChange: send request to ALL devices
+        function handleGroupChange(updateObj) {
+        // Derive raw numerical value
+        let rawValue = Object.values(updateObj)[0];
 
-      {/* Temperature */}
-      <TemperatureControl
-        initialValue={groupState.tempValue ?? 3000}
-        capabilityInstance="colorTemperatureK"
-        capabilityType="devices.capabilities.color_setting"
-        device="_group_"
-        sku="_group_"
-        onLocalChange={(updates) => handleGroupUpdate(updates)}
-      />
+        // 1. Update group UI state
+        handleGroupUpdate(updateObj);
 
-      {/* Power */}
-      <PowerControl
-        initialValue={groupState.switchState ?? false}
-        capabilityInstance="powerSwitch"
-        capabilityType="devices.capabilities.on_off"
-        device="_group_"
-        sku="_group_"
-        onLocalChange={(updates) => handleGroupUpdate(updates)}
-      />
+        // 2. Apply UI update to all selected devices immediately
+        selectedDevices.forEach(dev => updateUIS(dev.device, updateObj));
 
-      <button
-        className="mt-3 p-2 px-4 bg-blue-500 text-white rounded-lg"
-        onClick={applyBatch}
-      >
-        Apply to Selected Devices
-      </button>
+        // 3. Send API request for all selected devices
+        selectedDevices.forEach(dev => {
+          sendControlRequest(
+            dev.device,
+            dev.sku,
+            cap.instance,
+            cap.type,
+            rawValue
+          );
+        });
+      }
+        return (
+          <Control
+            key={cap.instance}
+            initialValue={cap.defaultValue ?? 0}
+            capabilityInstance={cap.instance}
+            capabilityType={cap.type}
+            device="GROUP"
+            sku="GROUP"
+            onLocalChange={ handleGroupChange }
+          >
+            Group {cap.instance}
+          </Control>
+        )
+      })}
     </div>
   );
+}
+
+function getSharedCapabilities(selectedDevices: DeviceData[]) {
+  if (selectedDevices.length === 0) return []
+
+  // list of all capability arrays
+  const caps = selectedDevices.map(d => d.capabilities)
+
+  // start with the first device’s capabilities
+  let shared = caps[0]
+
+  // keep only ones found in ALL devices
+  shared = shared.filter(cap =>
+    caps.every(deviceCaps =>
+      deviceCaps.some(dc => dc.instance === cap.instance)
+    )
+  )
+
+  return shared
+}
+
+
+function getControlComponent(item: Capability) {
+  if (item.instance === "powerSwitch") return PowerControl
+  if (item.instance === "brightness") return BrightnessControl
+  if (item.instance === "colorTemperatureK") return TemperatureControl
+  if (item.instance === "colorRgb") return ColorControl
+  return null
 }

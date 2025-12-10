@@ -30,14 +30,6 @@ function Device({ data, uiState, updateUI, selectionMode, selected, onSelect }) 
     getStatus()
   }, [])
 
-  console.log("uiState")
-  console.log(uiState)
-
-  if (uiState) {
-    console.log("wgatgeeee")
-    console.log(uiState.colorValue)
-  }
-
   let bulbColor = "#000";
   let bulbBrightness = 100;
   let brightness = 0;

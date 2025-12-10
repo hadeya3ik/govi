@@ -52,12 +52,10 @@ function Dashboard() {
         brightnessValue : 100, 
         online : true, 
         selected : false, 
-
       }) ))
   }
 
   async function settDevices() {
-    console.log("DEVICES : ")
     if (!devices) {
       return 
     }
@@ -72,7 +70,6 @@ function Dashboard() {
         method : "POST"
       })
       const res = await request.json()
-      console.log(res.payload.capabilities)
 
       const powerState = res.payload.capabilities?.find(item => item.instance === "online");
       const switchState = res.payload.capabilities?.find(item => item.instance === "powerSwitch");
@@ -98,10 +95,6 @@ function Dashboard() {
       if (!device.online) {
         device.colorValue = 0 
       }
-
-      console.log("attempting to set deviceUI")
-      console.log(device.device, device.colorValue,)
-
       setDeviceUI(prev => ({
       ...prev,
       [device.device]: {
@@ -113,8 +106,6 @@ function Dashboard() {
     }));
     }
     
-    console.log("DEVICES : ")
-    console.log(devices)
 
   }
 
@@ -164,15 +155,12 @@ function Dashboard() {
   }, [])
 
   useEffect(() => {
-    console.log("deviceUI", deviceUI)
-    devices?.forEach(item => {
-      console.log(deviceUI[item.device])
-    }) 
-  }, [deviceUI])
-
-  useEffect(() => {
     settDevices()
   }, [devices])
+
+  useEffect(() => {
+    console.log("deviceUI", deviceUI)
+  })
 
   const [selectionMode, setSelectionMode] = useState(false);
   const [selectedDevices, setSelectedDevices] = useState<string[]>([]);
@@ -194,7 +182,6 @@ function Dashboard() {
         }
       <button onClick={() => {
         setSelectionMode(!selectionMode);
-        console.log("SELECTION MODE: ", selectionMode)
         // if (!selectionMode) setSelectedDevices([]);
          }}>
         {selectionMode ? "Exit Selection Mode" : "Select Bulbs"}
