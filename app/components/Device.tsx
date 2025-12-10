@@ -51,7 +51,7 @@ function Device({ data, uiState, updateUI, selectionMode, selected, onSelect }) 
           checked={selected}
           onChange={onSelect}
           className="device-checkbox"
-        />
+        ></input>
       )}
 
       <BulbDisplay bulbColor={bulbColor} bulbBrightness={bulbBrightness} 
