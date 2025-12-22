@@ -1,13 +1,11 @@
 'use client'
 import React, {useEffect, useState} from 'react'
-import Device from '@/app/components/Device'
-import ControlPanel from '@/app/components/ControlPanel'
 import { DeviceData, DeviceUIMap, StatePayload, defaultDeviceState } from "../types/device"
+import DeviceList from './DeviceList'
 
 function Dashboard({devices} : { devices: DeviceData[] }) {
   const [devicesState, setDevicesState] = useState<DeviceUIMap>({});
   const [loading, setLoading] = useState(false)
-  const [index, setIndex] = useState(0)
 
   async function initializeDevice() {
     setLoading(true)
@@ -67,29 +65,14 @@ function Dashboard({devices} : { devices: DeviceData[] }) {
 
   return (
     <div>
-      {loading && <p>initializing...</p>}
-      <div className='flex'>
-      {!loading && devices && Object.entries(devicesState).map(([deviceId, deviceState], idx) => {
-        return (
-          <div key={deviceId}>
-            <input type='checkbox' 
-              checked={deviceId == devices[index].device} 
-              onChange={() => {setIndex(idx)}}
-            ></input>
-            <Device id={deviceId} {...deviceState} onUpdate={updateDeviceUI}></Device>
-          </div>
-        )
-      })}
-      </div>
-      {!loading && Object.keys(devicesState).length !== 0 && (
-        <ControlPanel
-          id={devices[index].device}
-          {...devicesState[devices[index].device]}
-          onUpdate={updateDeviceUI}
-        />
-      )}
+      {loading ? 
+        <p>initializing...</p> : 
+        <DeviceList devices={devices} devicesState={devicesState} updateDeviceUI={updateDeviceUI}> 
+        </DeviceList>
+      }
     </div>
   )
 }
 
 export default Dashboard
+
