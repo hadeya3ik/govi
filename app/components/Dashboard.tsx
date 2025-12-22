@@ -7,7 +7,7 @@ import { DeviceData, DeviceUIMap, StatePayload, defaultDeviceState } from "../ty
 function Dashboard({devices} : { devices: DeviceData[] }) {
   const [devicesState, setDevicesState] = useState<DeviceUIMap>({});
   const [loading, setLoading] = useState(false)
-  const [selectedDevices, setSelectedDevices] = useState<string[]>([])
+  const [index, setIndex] = useState(0)
 
   async function initializeDevice() {
     setLoading(true)
@@ -47,7 +47,6 @@ function Dashboard({devices} : { devices: DeviceData[] }) {
       } 
     })
     setDevicesState(newState);
-    setSelectedDevices([devices[0].device])
     console.log([devices[0].device])
     setLoading(false)
   }
@@ -66,33 +65,26 @@ function Dashboard({devices} : { devices: DeviceData[] }) {
     initializeDevice()
   }, [])
 
-  useEffect(() => {
-    console.log("Selected Devices", selectedDevices)  
-  })
-
   return (
     <div>
       {loading && <p>initializing...</p>}
       <div className='flex'>
-      {!loading && devices && Object.entries(devicesState).map(([deviceId, deviceState]) => {
+      {!loading && devices && Object.entries(devicesState).map(([deviceId, deviceState], idx) => {
         return (
           <div key={deviceId}>
             <input type='checkbox' 
-              checked={selectedDevices.includes(deviceId)} 
-              onChange={() => {selectedDevices.includes(deviceId)? 
-                setSelectedDevices(selectedDevices.filter((id) => id != deviceId)) : 
-                setSelectedDevices([...selectedDevices, deviceId])
-              }}
+              checked={deviceId == devices[index].device} 
+              onChange={() => {setIndex(idx)}}
             ></input>
             <Device id={deviceId} {...deviceState} onUpdate={updateDeviceUI}></Device>
           </div>
         )
       })}
       </div>
-      {!loading && selectedDevices.length > 0 && (
+      {!loading && Object.keys(devicesState).length !== 0 && (
         <ControlPanel
-          id={selectedDevices[0]}
-          {...devicesState[selectedDevices[0]]}
+          id={devices[index].device}
+          {...devicesState[devices[index].device]}
           onUpdate={updateDeviceUI}
         />
       )}
