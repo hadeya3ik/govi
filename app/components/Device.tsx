@@ -1,87 +1,27 @@
 'use client'
 import React, {useState, useEffect} from 'react'
 import BrightnessControl from '@/app/components/controls/BrightnessControl'
-import ColorControl from '@/app/components/controls/ColorControl'
-import PowerControl from '@/app/components/controls/PowerControl'
-import TemperatureControl from '@/app/components/controls/TemperatureControl'
-import { DeviceData, Capability, DeviceUIState } from "../types/device"
-import {getTempHexColor} from '@/app/helpers/helpers.js'
+import ColorRgbControl from '@/app/components/controls/ColorRgbControl'
+import PowerSwitchControl from '@/app/components/controls/PowerSwitchControl'
+import ColorTemperatureKControl from '@/app/components/controls/ColorTemperatureKControl'
+import { DeviceStateDetails, DeviceProps } from "../types/device"
+import {getTempHexColor, getRGBFromNumber} from '@/app/helpers/helpers.js'
 
-function Device({ 
-    data, uiState, updateUI, selectionMode, selected, onSelect 
-  }: 
-  {
-    data: DeviceData;
-    uiState: DeviceUIState | null;
-    updateUI: (deviceId: string, update: any) => void;
-    selectionMode: boolean;
-    selected: boolean;
-    onSelect: () => void;
-  })
-  {
-  const [capabilityArr, setCapabilityArr] = useState<Capability[] | null>(null);
-  
-  async function getStatus() {
-    const request = await fetch("/api/state", {
-      body: JSON.stringify({
-        sku : data.sku, 
-        ID : data.device
-      }), 
-      headers : {"Content-Type" : "application/json"}, 
-      method : "POST"
-    })
 
-    const res = await request.json()  
-    setCapabilityArr(
-      res.payload.capabilities
-    );
-  }
 
-  useEffect(() => {
-    getStatus()
-  }, [])
+function Device({id, colorRgb, colorTemperatureK, brightness, online, powerSwitch, deviceName, sku, onUpdate} : DeviceProps) {
+  let { r, g, b } = colorRgb > 10000 ? getRGBFromNumber(colorRgb) : getTempHexColor(colorTemperatureK);
+  let bulbColor = `rgb(${r}, ${g}, ${b})`;  
 
-  let bulbColor = "#000";
-  let bulbBrightness = 100;
-  let online = false;
-
-  if (uiState) {
-    if (uiState.colorValue) {}
-    const { r, g, b } = uiState.colorValue > 10000 ? getRGBFromNumber(uiState.colorValue) : getTempHexColor(uiState.colorValue);
-    bulbColor = `rgb(${r}, ${g}, ${b})`;
-    online = uiState.powerState
-    bulbBrightness = uiState.brightnessValue; 
-  }
-
-  return (
-    <div>
-      
-      {selectionMode && (
-        <input
-          type="checkbox"
-          checked={selected}
-          onChange={onSelect}
-          className="device-checkbox"
-        ></input>
-      )}
-
-      <BulbDisplay bulbColor={bulbColor} bulbBrightness={bulbBrightness} 
-      ></BulbDisplay>
-      <p>{data.deviceName}</p>
-      {
-        capabilityArr !== null &&
-          <div>
-            { "online? " + online}
-          </div>
-      }
-      {!selectionMode && (
-        
-          <BulbControls data={data} online={online} capabilityArr={capabilityArr} updateUI={updateUI} uiState={uiState}
-          // setLocalColor={setLocalColor} setLocalBrightness={setLocalBrightness}
-          ></BulbControls>
-      )}
-    </div>
-  )
+  return (<div>
+    <BulbDisplay bulbColor={bulbColor} bulbBrightness={brightness}></BulbDisplay>
+    <p>{deviceName}</p>
+    <span>online: {online}</span>
+    <PowerSwitchControl device={id} sku={sku} initialValue={powerSwitch} onLocalChange={onUpdate}></PowerSwitchControl>
+    <BrightnessControl device={id} sku={sku} initialValue={brightness} onLocalChange={onUpdate}></BrightnessControl>
+    <ColorTemperatureKControl device={id} sku={sku} initialValue={colorTemperatureK} onLocalChange={onUpdate}></ColorTemperatureKControl>
+    <ColorRgbControl device={id} sku={sku} initialValue={colorRgb} onLocalChange={onUpdate}></ColorRgbControl>
+  </div>)
 }
 
 function BulbDisplay({bulbColor, bulbBrightness} : {bulbColor : string, bulbBrightness : number}) {
@@ -92,77 +32,6 @@ function BulbDisplay({bulbColor, bulbBrightness} : {bulbColor : string, bulbBrig
       opacity: bulbBrightness / 100
       }}> 
   </div>)
-}
-
-function BulbControls({
-  data, online, capabilityArr, uiState, updateUI
-  } : 
-  {
-    data: DeviceData;
-    online : boolean;
-    capabilityArr : Capability[] | null;
-    uiState: DeviceUIState | null;
-    updateUI: (deviceId: string, update: any) => void;
-  }) {
-  return (<>
-    {capabilityArr && online &&
-    capabilityArr.map((item) => {
-      const Control = getControlComponent(item);
-      if (!Control) return null; 
-
-      const isColor = item.instance === "colorRgb";
-      const isTemp = item.instance === "colorTemperatureK";
-      const isBrightness = item.instance === "brightness";
-      const isPower = item.instance === "powerSwitch";
-
-      let initialValue = null; 
-      if (isColor || isTemp) {
-        initialValue = uiState?.colorValue 
-      } else if (isBrightness) {
-        initialValue = uiState?.brightnessValue
-      } else if (isPower) {
-        initialValue = uiState?.switchState
-      } 
-
-      return (
-        <Control
-          key={item.instance}
-          initialValue={initialValue}
-          capabilityInstance={item.instance}
-          capabilityType={item.type}
-          sku={data.sku}
-          device={data.device}
-          onLocalChange={updateUI}
-        >
-          control: {item.instance} device: {data.deviceName}
-        </Control>
-      );
-    })
-  }
-  </>)
-}
-
-function getControlComponent(item: Capability) {
-  if (item.instance === "powerSwitch") {
-    return PowerControl;
-  }
-  if (item.instance === "brightness") {
-    return BrightnessControl;
-  }
-  if (item.instance === "colorTemperatureK") {
-    return TemperatureControl;
-  }
-  if (item.instance === "colorRgb") {
-    return ColorControl;
-  }
-  return null;
-}
-
-function getRGBFromNumber(number : number) {
-  const r = (number >> 16) & 0xFF;
-  const g = (number >> 8) & 0xFF;
-  const b = number & 0xFF;
-  return { r, g, b };
 }
 
 async function sendControlRequest(

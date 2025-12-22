@@ -1,5 +1,11 @@
+export function getRGBFromNumber(number) {
+  const r = (number >> 16) & 0xFF;
+  const g = (number >> 8) & 0xFF;
+  const b = number & 0xFF;
+  return { r, g, b };
+}
+
 export function getTempHexColor(kelvin) {
-  // Clamp
   const value = Math.max(2000, Math.min(9000, kelvin));
 
   // Base colors
@@ -12,14 +18,14 @@ export function getTempHexColor(kelvin) {
   let r, g, b;
 
   if (value <= midPoint) {
-    // Interpolate warm → white
-    const t = (value - 2000) / (midPoint - 2000); // 0 → 1
+    // Interpolate warm -> white
+    const t = (value - 2000) / (midPoint - 2000); 
     r = warm.r + (mid.r - warm.r) * t;
     g = warm.g + (mid.g - warm.g) * t;
     b = warm.b + (mid.b - warm.b) * t;
   } else {
-    // Interpolate white → cool
-    const t = (value - midPoint) / (9000 - midPoint); // 0 → 1
+    // Interpolate white -> cool
+    const t = (value - midPoint) / (9000 - midPoint);
     r = mid.r + (cool.r - mid.r) * t;
     g = mid.g + (cool.g - mid.g) * t;
     b = mid.b + (cool.b - mid.b) * t;

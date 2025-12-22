@@ -24,6 +24,10 @@ export async function GET(request:NextRequest) {
         }
     )
 
+    console.log(serverRequest)
+    if (!serverRequest.ok) {
+        return new Response(null, { status: serverRequest.status });
+    }
     const serverResponse = await serverRequest.json()
     console.log(serverResponse)
 

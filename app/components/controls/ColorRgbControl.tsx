@@ -2,7 +2,10 @@
 
 import React, {useEffect, useState} from "react"
 import {sendControlRequest} from '@/app/components/Device';
-import { ControlProps } from "@/app/types/device";
+import { DeviceControlProps } from "@/app/types/device";
+
+const CAPABILITY_INSTANCE = "colorRgb"
+const CAPABILITY_TYPE = "devices.capabilities.color_setting"
 
 function numberToHex(n : number) {
   return n.toString(16).padStart(6, "0");
@@ -12,7 +15,7 @@ function hexToNumber(hex : string) {
   return parseInt(hex.replace("#", ""), 16);
 }
 
-export default function ColorControl({device, sku, capabilityInstance, capabilityType, initialValue, onLocalChange = () => {}} : ControlProps) {
+export default function ColorRgbControl({device, sku, initialValue, onLocalChange = () => {}} : DeviceControlProps) {
   const [colorValue, setColorValue] = useState(initialValue); 
   const hexColorValue = "#" + numberToHex(colorValue);
 
@@ -20,9 +23,9 @@ export default function ColorControl({device, sku, capabilityInstance, capabilit
     e.preventDefault();
     const nextValue = hexToNumber(e.target.value);
     setColorValue(nextValue);
-    onLocalChange({ colorValue: nextValue })
+    onLocalChange(device, { colorRgb: nextValue })
     console.log("nextValue", nextValue)
-    sendControlRequest(device, sku, capabilityInstance, capabilityType, nextValue);
+    sendControlRequest(device, sku, CAPABILITY_INSTANCE, CAPABILITY_TYPE, nextValue);
   }
 
   return (
@@ -39,4 +42,3 @@ export default function ColorControl({device, sku, capabilityInstance, capabilit
     </div>
   ); 
 }
-
