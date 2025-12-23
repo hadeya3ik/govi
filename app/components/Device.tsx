@@ -1,48 +1,50 @@
-import {getTempHexColor, getRGBFromNumber} from '@/app/helpers/helpers.js'
+'use client'
+import {resolveColorFromTemp, resolveColorFromRgb} from '@/app/helpers/colors.js'
 import { DeviceProps } from "../types/device"
+import { useEffect, useState, useRef } from 'react'
+
+const RGB_THRESHOLD = 10000
 
 export default function Device({id, colorRgb, colorTemperatureK, brightness, online, powerSwitch, deviceName, sku, onUpdate} : DeviceProps) {
-  let { r, g, b } = colorRgb > 10000 ? getRGBFromNumber(colorRgb) : getTempHexColor(colorTemperatureK);
-  let bulbColor = `rgb(${r}, ${g}, ${b})`;  
+  const [bulbColorObj, setBulbColorObj] = useState<null | string>(null)
+  const prevRgb = useRef<number | null>(null)
+  const prevTemp = useRef<number | null>(null)
+  
+  useEffect(() => {
+    const isInitialRender = prevRgb.current === null && prevTemp.current === null
+    
+    // on the initial mount then we display whichever color (rgb, temperature) is non zero
+    if (isInitialRender) {
+      setBulbColorObj(
+        (colorRgb > RGB_THRESHOLD) ? resolveColorFromRgb(colorRgb) : resolveColorFromTemp(colorTemperatureK)
+      )
+    }
+
+    // otherwise if either is different then the previous render we update it
+    if (!isInitialRender && prevRgb.current !== colorRgb) {
+      setBulbColorObj(resolveColorFromRgb(colorRgb))
+    } else if (!isInitialRender && prevTemp.current !== colorTemperatureK) {
+      setBulbColorObj(resolveColorFromTemp(colorTemperatureK))
+    }
+
+    prevRgb.current = colorRgb
+    prevTemp.current = colorTemperatureK
+
+  }, [colorRgb, colorTemperatureK])
 
   return (<div>
-    <BulbDisplay bulbColor={bulbColor} bulbBrightness={brightness}></BulbDisplay>
+    <BulbDisplay bulbColor={bulbColorObj} bulbBrightness={brightness}></BulbDisplay>
     <p>{deviceName}</p>
     <span>online: {online}</span>
   </div>)
 }
 
-function BulbDisplay({bulbColor, bulbBrightness} : {bulbColor : string, bulbBrightness : number}) {
+function BulbDisplay({bulbColor, bulbBrightness} : {bulbColor : string | null, bulbBrightness : number}) {
   return (<div
     className='bulb w-[100px] h-[100px] rounded-full'
     style={{ 
-      backgroundColor: bulbColor, 
+      backgroundColor: bulbColor ? bulbColor : "rgb(0, 0, 0)", 
       opacity: bulbBrightness / 100
       }}> 
   </div>)
 }
-
-async function sendControlRequest(
-    ID : string,
-    sku : string, 
-    instance : string, 
-    type : string, 
-    value : number) 
-  {
-  const req = await fetch("/api/control", 
-    {
-      method : "POST",
-      body : JSON.stringify({
-        sku,
-        ID,
-        value,
-        instance, 
-        type
-      }),
-      headers : {
-        "Content-Type" : "application/json",
-      }
-    }) 
-}
-
-export {sendControlRequest}

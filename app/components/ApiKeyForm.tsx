@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from "react";
+import { useState, useEffect } from "react"
 
 export default function ApiKeyForm({setAuth}: {setAuth : React.Dispatch<React.SetStateAction<number>>}) {
   const [formInput, setFormInput] = useState<string>("") 

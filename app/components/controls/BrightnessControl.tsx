@@ -1,19 +1,22 @@
 import React, {useState} from "react"
-import {sendControlRequest} from '@/app/components/Device';
-import { DeviceControlProps } from "@/app/types/device";
+import {ControlDevices} from '@/app/helpers/ApiRequest'
+import { DeviceControlProps } from "@/app/types/device"
 
 const CAPABILITY_INSTANCE = "brightness";
 const CAPABILITY_TYPE = "devices.capabilities.range";
 
-export default function BrightnessControl({device, sku, initialValue, onLocalChange}: DeviceControlProps) {
+export default function BrightnessControl({device, sku, initialValue, onLocalChange}
+  : DeviceControlProps
+) 
+  {
   const [brightnessLevel, setBrightnessLevel] = useState(initialValue)
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     e.preventDefault();
     const nextValue = Number(e.target.value); 
-    sendControlRequest(device, sku, CAPABILITY_INSTANCE, CAPABILITY_TYPE, nextValue);
+    ControlDevices(device, sku, nextValue, CAPABILITY_INSTANCE, CAPABILITY_TYPE);
     setBrightnessLevel(nextValue);
-    onLocalChange(device, { brightness: nextValue })
+    device.forEach((d) => {onLocalChange(d, { brightness: nextValue })})
   }
 
   return (

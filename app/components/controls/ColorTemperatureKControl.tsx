@@ -1,8 +1,8 @@
 'use client'
-import React, { useState, useEffect } from "react";
-import { sendControlRequest } from '@/app/components/Device';
-import { DeviceControlProps } from "@/app/types/device";
-import {getTempHexColor} from '@/app/helpers/helpers.js'
+import React, { useState, useEffect } from "react"
+import { ControlDevices } from '@/app/helpers/ApiRequest'
+import { DeviceControlProps } from "@/app/types/device"
+import {getTempHexColor} from '@/app/helpers/colors.js'
 
 const CAPABILITY_INSTANCE = "colorTemperatureK"
 const CAPABILITY_TYPE = "devices.capabilities.color_setting"
@@ -22,12 +22,13 @@ export default function ColorTemperatureKControl({device, sku, initialValue, onL
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const nextValue = Number(e.target.value);
     setTempLevel(nextValue);
-    onLocalChange(device, { colorTemperatureK: nextValue })
+    device.forEach((d) => {onLocalChange(d, { colorTemperatureK: nextValue })})
+
 
     const { r, g, b } = getTempHexColor(nextValue);
     setColor(`rgb(${r}, ${g}, ${b})`);
 
-    sendControlRequest(device, sku, CAPABILITY_INSTANCE, CAPABILITY_TYPE, nextValue);
+    ControlDevices(device, sku, nextValue, CAPABILITY_INSTANCE, CAPABILITY_TYPE);
   }
 
   return (

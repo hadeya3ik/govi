@@ -41,8 +41,14 @@ export type DeviceProps = DeviceStateDetails & {
   onUpdate: (deviceId: string, update: any) => void;
 };
 
+export type ControlProps  = DeviceStateDetails & {
+  id: string[];
+  onUpdate: (deviceId: string, update: any) => void;
+};
+
+
 export interface DeviceControlProps {
-  device: string;
+  device: string[];
   sku: string; 
   initialValue: number;
   onLocalChange: (deviceId: string, update: any) => void;

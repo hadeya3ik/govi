@@ -75,4 +75,3 @@ function Dashboard({devices} : { devices: DeviceData[] }) {
 }
 
 export default Dashboard
-
