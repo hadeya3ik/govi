@@ -1,7 +1,7 @@
 'use client'
 import React, {useEffect, useState} from 'react'
 import { DeviceData, DeviceUIMap, StatePayload, defaultDeviceState } from "../types/device"
-import DeviceList from './DeviceList'
+import DeviceList from './DeviceManager'
 
 function Dashboard({devices} : { devices: DeviceData[] }) {
   const [devicesState, setDevicesState] = useState<DeviceUIMap>({});
