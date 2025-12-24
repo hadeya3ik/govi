@@ -1,8 +1,10 @@
 'use client'
 
-import React, {useEffect, useState} from "react"
+import React, { useState} from "react"
 import {ControlDevices} from '@/app/helpers/ApiRequest'
+import {rgbNumberToHsla, hslaToRgbNumber} from '@/app/helpers/colors'
 import { DeviceControlProps } from "@/app/types/device"
+import {HueSlider, LightnessSlider, SaturationSlider} from '@/app/components/color/index'
 
 const CAPABILITY_INSTANCE = "colorRgb"
 const CAPABILITY_TYPE = "devices.capabilities.color_setting"
@@ -17,11 +19,15 @@ function hexToNumber(hex : string) {
 
 export default function ColorRgbControl({device, sku, initialValue, onLocalChange = () => {}} : DeviceControlProps) {
   const [colorValue, setColorValue] = useState(initialValue); 
-  const hexColorValue = "#" + numberToHex(colorValue);
+  const color = rgbNumberToHsla(colorValue)
 
-  function handleChange(e : React.ChangeEvent<HTMLInputElement>) {
-    e.preventDefault();
-    const nextValue = hexToNumber(e.target.value);
+  function handleChange(nextColor : {h: number, s: number, l: number, a: number}) {
+    const nextValue = hslaToRgbNumber(
+      nextColor.h,
+      nextColor.s,
+      nextColor.l
+    )
+    
     setColorValue(nextValue);
     device.forEach((d) => {onLocalChange(d, { colorRgb: nextValue })})
     ControlDevices(device, sku, nextValue, CAPABILITY_INSTANCE, CAPABILITY_TYPE);
@@ -29,15 +35,10 @@ export default function ColorRgbControl({device, sku, initialValue, onLocalChang
 
   return (
     <div>
-      <label htmlFor="colorSelector">
-        color: 
-        <input
-          id="colorSelector"
-          type="color"
-          value={hexColorValue}
-          onChange={handleChange}
-        />
-      </label>
+      <HueSlider handleChangeColor={handleChange} color={color} />
+      <LightnessSlider handleChangeColor={handleChange} color={color} />
+      <SaturationSlider handleChangeColor={handleChange} color={color} />
     </div>
   ); 
 }
+

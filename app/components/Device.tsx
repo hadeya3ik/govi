@@ -1,5 +1,6 @@
 'use client'
 import {resolveColorFromTemp, resolveColorFromRgb} from '@/app/helpers/colors.js'
+import {BulbSvg} from '@/app/helpers/DeviceSvg'
 import { DeviceProps } from "../types/device"
 import { useEffect, useState, useRef } from 'react'
 
@@ -33,18 +34,19 @@ export default function Device({id, colorRgb, colorTemperatureK, brightness, onl
   }, [colorRgb, colorTemperatureK])
 
   return (<div>
-    <BulbDisplay bulbColor={bulbColorObj} bulbBrightness={brightness}></BulbDisplay>
+    <BulbDisplay bulbColor={bulbColorObj} bulbBrightness={brightness} id={id}></BulbDisplay>
     <p>{deviceName}</p>
     <span>online: {online}</span>
   </div>)
 }
 
-function BulbDisplay({bulbColor, bulbBrightness} : {bulbColor : string | null, bulbBrightness : number}) {
+function BulbDisplay({bulbColor, bulbBrightness, id} : {bulbColor : string | null, bulbBrightness : number, id : string}) {
   return (<div
-    className='bulb w-[100px] h-[100px] rounded-full'
+    className='w-[200px] h-[200px] rounded-full'
     style={{ 
-      backgroundColor: bulbColor ? bulbColor : "rgb(0, 0, 0)", 
+      // backgroundColor: bulbColor ? bulbColor : "rgb(0, 0, 0)", 
       opacity: bulbBrightness / 100
       }}> 
+      <BulbSvg fillColor={ bulbColor ? bulbColor : "rgb(0, 0, 0)"} id={id}></BulbSvg>
   </div>)
 }
