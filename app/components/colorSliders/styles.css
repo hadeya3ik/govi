@@ -65,3 +65,13 @@
 .color-slider::-ms-tooltip {
   display: none;
 }
+
+/* temperature slider track */
+.color-slider, .temp-slider {
+  --track-bg: linear-gradient(
+    to right,
+    rgb(255, 210, 157),
+    rgb(255, 255, 255),
+    rgb(141, 205, 251)
+  );
+}

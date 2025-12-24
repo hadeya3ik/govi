@@ -4,7 +4,7 @@ import React, { useState} from "react"
 import {ControlDevices} from '@/app/helpers/ApiRequest'
 import {rgbNumberToHsla, hslaToRgbNumber} from '@/app/helpers/colors'
 import { DeviceControlProps } from "@/app/types/device"
-import {HueSlider, LightnessSlider, SaturationSlider} from '@/app/components/color/index'
+import {HueSlider, LightnessSlider, SaturationSlider} from '@/app/components/colorSliders/ColorSliders'
 
 const CAPABILITY_INSTANCE = "colorRgb"
 const CAPABILITY_TYPE = "devices.capabilities.color_setting"
@@ -34,7 +34,7 @@ export default function ColorRgbControl({device, sku, initialValue, onLocalChang
   }
 
   return (
-    <div>
+    <div className="w-[300px]">
       <HueSlider handleChangeColor={handleChange} color={color} />
       <LightnessSlider handleChangeColor={handleChange} color={color} />
       <SaturationSlider handleChangeColor={handleChange} color={color} />
