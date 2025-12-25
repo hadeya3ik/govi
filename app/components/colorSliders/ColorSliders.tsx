@@ -56,8 +56,13 @@ export function LightnessSlider(props: HueSliderProps) {
   return (
     <Slider
       disabled={props.disabled}
+      min={50}
+      max={90}
       thumbBackground={`hsl(${props.color.h}, 100%, ${props.color.l}%)`}
-      trackBackground={`linear-gradient(to right, hsl(${props.color.h}, 100%, 0%),  hsl(${props.color.h}, 100%, 50%), hsl(${props.color.h}, 100%, 100%))`}
+      trackBackground={`linear-gradient(to right, 
+          hsl(${props.color.h}, 100%, 50%),  
+
+          hsl(${props.color.h}, 100%, 100%))`}
       value={props.color.l}
       handleMoveSlider={handleMoveSlider}
     />
@@ -76,40 +81,15 @@ export function SaturationSlider(props: HueSliderProps) {
 
   return (
     <Slider
+      min={5}
+      max={90}
       disabled={props.disabled}
       thumbBackground={`hsl(${props.color.h}, ${props.color.s}%, 50%)`}
-      trackBackground={`linear-gradient(to right, hsl(${props.color.h}, 0%, 50%),  hsl(${props.color.h}, 100%, 50%))`}
+      trackBackground={`linear-gradient(to right, 
+        hsl(${props.color.h}, 100%, 100%),  
+        hsl(${props.color.h}, 100%, 50%))`}
       value={props.color.s}
       handleMoveSlider={handleMoveSlider}
     />
   )
 }
-
-export function TemperatureSlider(props: any) {
-const handleMoveSlider = (value: number) => {
-    props.handleChangeColor({
-      h: props.color.h,
-      s: value,
-      l: props.color.l,
-      a: props.color.a,
-    })
-  }
-{
-  return (
-    <Slider
-      disabled={props.disabled}
-      value={props.color.s}
-      thumbBackground="white"
-      trackBackground="linear-gradient(to right,
-        rgb(255, 210, 157),
-        rgb(255, 255, 255),
-        rgb(141, 205, 251)
-      )"
-    //   min={2700}
-    //   max={6500}
-    //   step={1}
-      handleMoveSlider={handleMoveSlider}
-    />
-  )
-}}
-

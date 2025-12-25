@@ -44,7 +44,7 @@ function BulbDisplay({bulbColor, bulbBrightness, id} : {bulbColor : string | nul
   return (<div
     className='w-[200px] h-[200px] rounded-full'
     style={{ 
-      // backgroundColor: bulbColor ? bulbColor : "rgb(0, 0, 0)", 
+      backgroundColor: bulbColor ? bulbColor : "rgb(0, 0, 0)", 
       opacity: bulbBrightness / 100
       }}> 
       <BulbSvg fillColor={ bulbColor ? bulbColor : "rgb(0, 0, 0)"} id={id}></BulbSvg>

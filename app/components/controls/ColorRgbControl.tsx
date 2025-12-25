@@ -1,44 +1,37 @@
 'use client'
 
-import React, { useState} from "react"
+import React, { useState, useEffect} from "react"
 import {ControlDevices} from '@/app/helpers/ApiRequest'
-import {rgbNumberToHsla, hslaToRgbNumber} from '@/app/helpers/colors'
+import {packedRgbToHsla, hslaToPackedRgb} from '@/app/helpers/colors'
 import { DeviceControlProps } from "@/app/types/device"
 import {HueSlider, LightnessSlider, SaturationSlider} from '@/app/components/colorSliders/ColorSliders'
 
 const CAPABILITY_INSTANCE = "colorRgb"
 const CAPABILITY_TYPE = "devices.capabilities.color_setting"
-
-function numberToHex(n : number) {
-  return n.toString(16).padStart(6, "0");
-}
-
-function hexToNumber(hex : string) {
-  return parseInt(hex.replace("#", ""), 16);
-}
+const MIN_LIGHTNESS = 50
+const DEFAULT_SATURATION = 100
 
 export default function ColorRgbControl({device, sku, initialValue, onLocalChange = () => {}} : DeviceControlProps) {
-  const [colorValue, setColorValue] = useState(initialValue); 
-  const color = rgbNumberToHsla(colorValue)
-
-  function handleChange(nextColor : {h: number, s: number, l: number, a: number}) {
-    const nextValue = hslaToRgbNumber(
-      nextColor.h,
-      nextColor.s,
-      nextColor.l
-    )
-    
-    setColorValue(nextValue);
-    device.forEach((d) => {onLocalChange(d, { colorRgb: nextValue })})
-    ControlDevices(device, sku, nextValue, CAPABILITY_INSTANCE, CAPABILITY_TYPE);
-  }
+  const [colorHsla, setColorHsla] = useState(packedRgbToHsla(initialValue));
+  
+  useEffect(() => {
+    if (initialValue == null) return;
+    const HslaValues = packedRgbToHsla(initialValue)
+    setColorHsla({...HslaValues, s: 100,  l: Math.max(MIN_LIGHTNESS, HslaValues.l),} );
+  }, [initialValue]);
+  
+  function handleChangeHSLA(newColor : { h: number, s: number, l: number, a: number }) {
+    setColorHsla(newColor);
+    const RgbInteger = hslaToPackedRgb(newColor)
+     device.forEach((d) => {onLocalChange(d, { colorRgb: RgbInteger })})
+    ControlDevices(device, sku, RgbInteger, CAPABILITY_INSTANCE, CAPABILITY_TYPE);
+  };
 
   return (
     <div className="w-[300px]">
-      <HueSlider handleChangeColor={handleChange} color={color} />
-      <LightnessSlider handleChangeColor={handleChange} color={color} />
-      <SaturationSlider handleChangeColor={handleChange} color={color} />
+      <HueSlider handleChangeColor={handleChangeHSLA} color={colorHsla} />
+      <LightnessSlider handleChangeColor={handleChangeHSLA} color={colorHsla} />
+      {/* <SaturationSlider handleChangeColor={handleChangeHSLA} color={colorHsla} /> */}
     </div>
   ); 
 }
-

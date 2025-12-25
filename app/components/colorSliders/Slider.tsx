@@ -4,15 +4,17 @@ import './styles.css'
 
 interface SliderProps {
   disabled?: boolean
+  min?: number
+  max?: number
   thumbBackground: string
   trackBackground: string
   value: number
   handleMoveSlider: (value: number) => void
 }
 
-const trackHeight = 0.88
-const thumbDiameterSmall = 1.4
-const thumbDiameterBig = 1.6
+const trackHeight = 1.8
+const thumbDiameterSmall = 1.8
+const thumbDiameterBig = 2
 
 export function Slider(props: SliderProps) {
   const [sliderIsBeingTouched, setSliderIsBeingTouched] = useState(false)
@@ -51,6 +53,8 @@ export function Slider(props: SliderProps) {
       }
       value={props.value}
       disabled={props.disabled}
+      min={props.min}
+      max={props.max}
       onChange={handleChange}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
