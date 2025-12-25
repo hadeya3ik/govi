@@ -10,10 +10,13 @@ export default function DeviceList({devices, devicesState, updateDeviceUI} : {de
     const [selectedDevices, setSelectedDevices] = useState<string[]>([])
     const [isSelectionMode, setSelectionMode] = useState(false)
 
-    useEffect(() => {
-      console.log("selectionMode", isSelectionMode)
-      console.log("selectedDevices", selectedDevices)
-    }) 
+    function toggleSelectionMode() {
+      setSelectionMode(prev => {
+        const next = !prev
+        setSelectedDevices(next ? devices.map(d => d.device) : [devices[index].device])
+        return next
+      })
+    }
 
     useEffect(() => {
       if (devices.length > 0) {
@@ -27,11 +30,9 @@ export default function DeviceList({devices, devicesState, updateDeviceUI} : {de
 
     return (<>
     <div className="overflow-hidden w-full px-[25%]">
-      <button onClick={() => {setSelectionMode(true); setSelectedDevices(devices.map((d) => d.device))}}>set selection mode</button>
-      {isSelectionMode && 
-      <>
-        <button onClick={() => { setSelectedDevices([devices[index].device]); setSelectionMode(false) }}>exit</button>
-      </>}
+      <button className="button-primary" onClick={toggleSelectionMode}>
+        {`${isSelectionMode ? "exit" : "enter"} select mode`}
+      </button>
       <motion.div 
         className={`flex flex-row ${isSelectionMode ? "gap-[16px]" : "gap-[25%]" }`}
         animate={{ x: `-${index * 25}%` }}
@@ -48,22 +49,30 @@ export default function DeviceList({devices, devicesState, updateDeviceUI} : {de
                   setSelectedDevices([...selectedDevices, deviceId])}
               }
             ></input>
-            {/* <motion.div
-              animate={{
-                scale: deviceId === devices[index].device ? 1 : 0.8,
-                opacity: deviceId === devices[index].device ? 1 : 0.6,
-              }}
+            <motion.div
+              animate={
+                isSelectionMode
+                  ? {
+                      scale: 1,
+                      opacity: 1,
+                    }
+                  : {
+                      scale: deviceId === devices[index].device ? 1 : 0.8,
+                      opacity: deviceId === devices[index].device ? 1 : 0.6,
+                    }
+              }
               transition={{ duration: 0.3 }}
-            > */}
+            >
             <Device id={deviceId} {...deviceState} onUpdate={updateDeviceUI}></Device>
-            {/* </motion.div> */}
+            </motion.div>
           </div>)
       })}
       </motion.div>
+      {!isSelectionMode && 
       <div>
-        <button onClick={() => {setIndex((index - 1 + devices.length) %  devices.length )}}>Prev</button>
-        <button onClick={() => {setIndex((index + 1) % devices.length)  }}>Next</button>
-      </div>
+        <button className="button-secondary" onClick={() => {setIndex((index - 1 + devices.length) %  devices.length )}}>Prev</button>
+        <button className="button-secondary" onClick={() => {setIndex((index + 1) % devices.length)  }}>Next</button>
+      </div>}
       </div>
       {Object.keys(devicesState).length !== 0 && (
         <ControlPanel

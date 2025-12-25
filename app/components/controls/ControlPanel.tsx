@@ -5,8 +5,15 @@ import ColorTemperatureKControl from '@/app/components/controls/ColorTemperature
 import { DeviceProps, ControlProps } from "../../types/device"
 
 export default function ControlPanel({id, colorRgb, colorTemperatureK, brightness, online, powerSwitch, deviceName, sku, onUpdate} : ControlProps) {
-  return (<div>
-    <PowerSwitchControl device={id} sku={sku} initialValue={powerSwitch} onLocalChange={onUpdate}></PowerSwitchControl>
+  return (
+  <div className='control-panel space-between w-[300px]'>
+    <div className='flex items-center justify-between w-full'>
+      <PowerSwitchControl device={id} sku={sku} initialValue={powerSwitch} onLocalChange={onUpdate}></PowerSwitchControl>
+      <div>
+        {/* <span className='text-[32px] m-x-4'>{online? '✓' : '✕'}</span> */}
+        <span className='uppercase text-[24px]'>{deviceName}</span>
+      </div>
+    </div>
     <BrightnessControl device={id} sku={sku} initialValue={brightness} onLocalChange={onUpdate}></BrightnessControl>
     <ColorTemperatureKControl device={id} sku={sku} initialValue={colorTemperatureK} onLocalChange={onUpdate}></ColorTemperatureKControl>
     <ColorRgbControl device={id} sku={sku} initialValue={colorRgb} onLocalChange={onUpdate}></ColorRgbControl>

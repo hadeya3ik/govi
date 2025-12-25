@@ -28,7 +28,7 @@ export default function ColorRgbControl({device, sku, initialValue, onLocalChang
   };
 
   return (
-    <div className="w-[300px]">
+    <div className="w-full">
       <HueSlider handleChangeColor={handleChangeHSLA} color={colorHsla} />
       <LightnessSlider handleChangeColor={handleChangeHSLA} color={colorHsla} />
       {/* <SaturationSlider handleChangeColor={handleChangeHSLA} color={colorHsla} /> */}

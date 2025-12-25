@@ -24,7 +24,7 @@ export default function BrightnessControl({device, sku, initialValue, onLocalCha
   }
 
   return (
-    <div className="w-[300px]">
+    <div className="w-full">
       <Slider
         thumbBackground={`hsl(100%, 100%, 50%)`}
         trackBackground={`linear-gradient(

@@ -14,7 +14,6 @@
   border-radius: calc(var(--track-height) / 2);
   background: var(--track-bg);
   padding-right: -3px;
-  margin-left: 5px;
   /* border-right: 5px solid transparent ;
   border-left: 5px solid transparent ; */
 }

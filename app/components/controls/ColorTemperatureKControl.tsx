@@ -36,7 +36,7 @@ export default function ColorTemperatureKControl({device, sku, initialValue, onL
 }
 
   return (
-    <div className="w-[300px]">
+    <div className="w-full">
     <Slider
       thumbBackground={`hsl(100%, 100%, 50%)`}
       trackBackground="linear-gradient(to right, rgb(255, 210, 157), rgb(255, 255, 255), rgb(141, 205, 251) )"

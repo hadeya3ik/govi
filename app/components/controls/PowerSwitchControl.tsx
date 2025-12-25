@@ -9,8 +9,8 @@ const CAPABILITY_TYPE = "devices.capabilities.on_off"
 export default function PowerSwitchControl({device, sku, initialValue, onLocalChange} : DeviceControlProps) {
   const [powerState, setPowerState] = useState(initialValue)
 
-  function handleChange(e : React.ChangeEvent<HTMLInputElement>) {
-    const nextValue = e.target.checked ? 1 : 0;
+  function togglePower() {
+    const nextValue = powerState === 1 ? 0 : 1
 
     if (onLocalChange) {
       device.forEach((d) => {onLocalChange(d, { powerSwitch: nextValue })})
@@ -27,11 +27,7 @@ export default function PowerSwitchControl({device, sku, initialValue, onLocalCh
 
   return (
     <div>
-      <label htmlFor="powerSwitch">
-        Power: 
-        <input checked={powerState === 1} type="checkbox" id="powerSwitch" onChange={handleChange}>
-        </input>
-      </label>
+      <button className="button-primary switch" onClick={togglePower} >{`power ${powerState === 1 ? "off" : "on"}`} </button>
     </div>
   ) 
 }
