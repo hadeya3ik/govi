@@ -1,7 +1,7 @@
 'use client'
 import React, {useEffect, useState} from 'react'
 import { DeviceData, DeviceUIMap, StatePayload, defaultDeviceState } from "../types/device"
-import DeviceList from './DeviceManager'
+import DeviceManager from './DeviceManager'
 
 function Dashboard({devices} : { devices: DeviceData[] }) {
   const [devicesState, setDevicesState] = useState<DeviceUIMap>({});
@@ -64,11 +64,11 @@ function Dashboard({devices} : { devices: DeviceData[] }) {
   }, [])
 
   return (
-    <div>
+    <div className='h-full'>
       {loading ? 
         <p>initializing...</p> : 
-        <DeviceList devices={devices} devicesState={devicesState} updateDeviceUI={updateDeviceUI}> 
-        </DeviceList>
+        <DeviceManager devices={devices} devicesState={devicesState} updateDeviceUI={updateDeviceUI}> 
+        </DeviceManager>
       }
     </div>
   )

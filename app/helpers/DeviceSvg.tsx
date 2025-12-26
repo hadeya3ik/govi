@@ -15,6 +15,7 @@ export function BulbSvg({  color, uid} : { color : string, uid : string}) {
       viewBox="0 0 1050 1072"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
+      className="bulb-fill"
     >
       {/* Base */}
       <circle cx="525" cy="547" r="425" fill={color} />

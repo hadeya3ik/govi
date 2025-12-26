@@ -6,7 +6,7 @@ import { DeviceProps, ControlProps } from "../../types/device"
 
 export default function ControlPanel({id, colorRgb, colorTemperatureK, brightness, online, powerSwitch, deviceName, sku, onUpdate} : ControlProps) {
   return (
-  <div className='control-panel space-between w-[300px]'>
+  <div className='control-panel flex flex-col gap-[8px]'>
     <div className='flex items-center justify-between w-full'>
       <PowerSwitchControl device={id} sku={sku} initialValue={powerSwitch} onLocalChange={onUpdate}></PowerSwitchControl>
       <div>
@@ -14,8 +14,11 @@ export default function ControlPanel({id, colorRgb, colorTemperatureK, brightnes
         <span className='uppercase text-[24px]'>{deviceName}</span>
       </div>
     </div>
-    <BrightnessControl device={id} sku={sku} initialValue={brightness} onLocalChange={onUpdate}></BrightnessControl>
-    <ColorTemperatureKControl device={id} sku={sku} initialValue={colorTemperatureK} onLocalChange={onUpdate}></ColorTemperatureKControl>
-    <ColorRgbControl device={id} sku={sku} initialValue={colorRgb} onLocalChange={onUpdate}></ColorRgbControl>
+    <div className='flex flex-col gap-4'>
+      <BrightnessControl device={id} sku={sku} initialValue={brightness} onLocalChange={onUpdate}></BrightnessControl>
+      <ColorTemperatureKControl device={id} sku={sku} initialValue={colorTemperatureK} onLocalChange={onUpdate}></ColorTemperatureKControl>
+      <ColorRgbControl device={id} sku={sku} initialValue={colorRgb} onLocalChange={onUpdate}></ColorRgbControl> 
+    </div>
+   
   </div>)
 }

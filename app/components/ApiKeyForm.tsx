@@ -45,7 +45,7 @@ export default function ApiKeyForm({setAuth}: {setAuth : React.Dispatch<React.Se
     <div>
         <>
           { hasCookies ? 
-            <button className="button-primary" onClick={() => setShowForm(!showForm)}>
+            <button className="button-primary absolute" onClick={() => setShowForm(!showForm)}>
               change API key?
             </button>
             :

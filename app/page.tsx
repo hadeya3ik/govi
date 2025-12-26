@@ -60,11 +60,11 @@ export default function Home() {
   }, [authVersion])
 
   return (
-    <>
+    <div className="h-[100%]">
       <ApiKeyForm setAuth={setAuthVersion}></ApiKeyForm>
       {authVersion > 0 && error && <p>{error}</p>}
       {loading && <p>loading...</p>}
       {!error && !loading && authVersion > 0 && <DevicesDashboard devices={devices}></DevicesDashboard>}
-    </>
+    </div>
   )
 }

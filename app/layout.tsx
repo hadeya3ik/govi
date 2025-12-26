@@ -9,7 +9,6 @@ const oxygenMono = Oxygen_Mono({
   variable: '--font-oxygen-mono',
 })
 
-
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -26,10 +25,10 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+    children,
+  }: Readonly<{
+    children: React.ReactNode;
+  }>) {
   return (
     <html lang="en">
       <body
