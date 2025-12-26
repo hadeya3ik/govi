@@ -29,8 +29,8 @@ export default function BrightnessControl({device, sku, initialValue, onLocalCha
         thumbBackground={`hsl(100%, 100%, 50%)`}
         trackBackground={`linear-gradient(
           to right,
-          rgb(100, 100, 100),
-          rgb(255 ,255, 255))`}
+          rgb(44, 44, 44),
+          rgb(100, 100, 100))`}
         min={0}
         max={100}
         value={brightnessLevel}

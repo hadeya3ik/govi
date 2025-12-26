@@ -26,6 +26,15 @@ body {
     text-transform: uppercase;
     padding: 2px 8px;
     border-radius: 2px;
+
+    transition:
+    background-color 500ms ease-in-out,
+    color 500ms ease-in-out;
+}
+
+.tag.selected {
+    background-color: rgb(255, 255, 255);
+    color: rgb(0, 0, 0);
 }
 
 .button-primary, .button-secondary {
@@ -60,7 +69,7 @@ body {
 }
 
 .control-panel {
-    width : 500px; 
+    width : 300px; 
     border: 1px solid rgb(47, 47, 47);
     background: #262626;;
     padding: 8px 16px;
@@ -72,27 +81,23 @@ body {
     padding: 16px 0px;
 }
 
-.devices-list {
-    border : white 1px solid; 
-} 
-
-.selection-mode {
-    gap: 15px;
-
+@media (max-width: 768px) {
+  .control-panel {
+    width: 90vw;
+    max-width: 400px;
+  }
 }
 
-.default-mode {
-    gap: 25%;
+.bulb-display {
+   width: 250px;
+   height: 250px;
 }
-
-
 
 .wrapper {
   display: flex;
   align-items: center;
   gap: 1rem;
 }
-
 
 .cards {
   display: flex;
@@ -106,6 +111,58 @@ body {
   padding-inline: calc(50% - 60px);
 }
 
+@media (max-width: 480px) {
+  .cards {
+    gap: 0px;
+    padding-inline: calc(50% - 0px);
+   }
+}
+
+.bulb-display {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-bottom: 5px;
+  padding-right: 3px;
+  padding-left: 3px;
+  padding-top: 0px;
+
+  transition:
+    outline 500ms ease,
+    transform 500ms ease;
+}
+
+.bulb-display.selected {
+  outline: 6px solid rgb(255, 255, 255);
+  outline-offset: -24px;
+  border-radius: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+@media (max-width: 480px) {
+  .control-panel {
+    width: 95vw;
+  }
+
+  .bulb-display {
+    max-width: 200px;
+    max-height: 200px;
+  }
+
+  .cards {
+    gap: 0px;
+    padding-inline: calc(50% - 0px);
+   }
+
+  .bulb-display.selected {
+    outline-offset: -18px;
+  }
+
+
+}
+
 .cards::-webkit-scrollbar {
   display: none;
 }
@@ -115,11 +172,11 @@ body {
   display: grid;
   place-items: center;
   transition: transform 300ms ease, opacity 300ms ease;
-  transform: scale(1);
+  transform: scale(0.8);
   cursor: pointer;
 }
 
 .card.active {
-  transform: scale(1.25);
+  transform: scale(1);
   opacity: 1;
 }

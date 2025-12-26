@@ -14,11 +14,10 @@ export default function ControlPanel({id, colorRgb, colorTemperatureK, brightnes
         <span className='uppercase text-[24px]'>{deviceName}</span>
       </div>
     </div>
-    <div className='flex flex-col gap-4'>
+    <div className='flex flex-col gap-4 w-full'>
       <BrightnessControl device={id} sku={sku} initialValue={brightness} onLocalChange={onUpdate}></BrightnessControl>
       <ColorTemperatureKControl device={id} sku={sku} initialValue={colorTemperatureK} onLocalChange={onUpdate}></ColorTemperatureKControl>
       <ColorRgbControl device={id} sku={sku} initialValue={colorRgb} onLocalChange={onUpdate}></ColorRgbControl> 
     </div>
-   
   </div>)
 }

@@ -39,6 +39,7 @@ export interface DeviceUIMap extends Record<string, DeviceStateDetails> {}
 export type DeviceProps = DeviceStateDetails & {
   id: string;
   onUpdate: (deviceId: string, update: any) => void;
+  isSelected : Boolean;
 };
 
 export type ControlProps  = DeviceStateDetails & {

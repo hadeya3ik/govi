@@ -43,7 +43,7 @@ export default function ApiKeyForm({setAuth}: {setAuth : React.Dispatch<React.Se
 
   return (
     <div>
-        <>
+        <div className="">
           { hasCookies ? 
             <button className="button-primary absolute" onClick={() => setShowForm(!showForm)}>
               change API key?
@@ -60,7 +60,7 @@ export default function ApiKeyForm({setAuth}: {setAuth : React.Dispatch<React.Se
             </label>
               <button className="button-secondary" type="submit">fetch</button>
           </form>}
-        </>
+        </div>
     </div>
   );
 }
