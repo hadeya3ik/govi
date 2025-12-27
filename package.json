@@ -16,7 +16,7 @@
     "@react-stately/color": "^3.9.3",
     "@react-stately/utils": "^3.11.0",
     "framer-motion": "^12.23.26",
-    "next": "15.5.4",
+    "next": "15.5.9",
     "react": "19.1.0",
     "react-dom": "19.1.0"
   },
